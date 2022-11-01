@@ -1,5 +1,5 @@
 # AQuA
-A framework for data introspection and curation.
+A framework for data quality introspection and curation.
 
 
 Run the command:
