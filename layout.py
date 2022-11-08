@@ -23,11 +23,25 @@ def make_layout():
             ],  className="row")
         ]),
         dcc.Tab(label='Stage II', children=[
-            html.Div(children=dcc.Graph(id='stageii_g1'), className='pretty_containier six columns')
-            ]),
+            html.Div([
+                html.Div(children=dcc.Graph(id='stageii_g1'), className='pretty_containier six columns'),
+                html.Div(children=dcc.Graph(id='stageii_g2'), className='pretty_containier six columns')
+            ], className='row'),
+            html.Div([
+                html.Div(children=dcc.Graph(id='stageii_g3'), className='pretty_containier six columns'),
+                html.Div(children=dcc.Graph(id='stageii_g4'), className='pretty_containier six columns')
+            ], className='row')
+        ]),
         dcc.Tab(label='Stage III', children=[
-            html.Div(children=dcc.Graph(id='stageiii_g1'), className='pretty_container six columns')
-            ])
+            html.Div([
+                html.Div(children=dcc.Graph(id='stageiii_g1'), className='pretty_containier six columns'),
+                html.Div(children=dcc.Graph(id='stageiii_g2'), className='pretty_containier six columns')
+            ], className='row'),
+            html.Div([
+                html.Div(children=dcc.Graph(id='stageiii_g3'), className='pretty_containier six columns'),
+                html.Div(children=dcc.Graph(id='stageiii_g4'), className='pretty_containier six columns')
+            ], className='row')
+        ]),
 
     ]),
 ])

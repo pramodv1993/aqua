@@ -5,15 +5,22 @@ import plotly.figure_factory as ff
 import pandas as pd
 import numpy as np
 
-#@TODO compute metrics for chosen datasets/ chosen points
-def get_scatter_plot(selected_datasets):
-    if not selected_datasets:
+dataset = pd.read_csv('datasets/dataset.csv')
+metrics = pd.read_csv('datasets/metrics.csv')
+names = dataset.name.unique()
+
+def get_scatter_plot(selected_datasets=None, ids=None):
+    if not selected_datasets and not ids:
         return get_empty_graph()
-    x = np.random.randint(0, 100, size=(100,2))
-    labels = selected_datasets
-    y = np.array([[np.random.choice(labels)] for _ in range(100)])
-    points = pd.DataFrame(np.concatenate((x, y), axis=1), columns=list('ABC'))
-    fig = px.scatter(points, x='A', y='B', color='C')
+    filtered = None
+    if selected_datasets:
+        filtered = dataset[dataset.name.isin(selected_datasets)]
+    if ids:
+        if filtered:
+            filtered = filtered[filtered.id.isin(ids)]
+        else:
+            filtered = dataset[dataset.id.isin(ids)]
+    fig = px.scatter(filtered, x='pc1', y='pc2', color='name', hover_data=['id'])
     fig.update_layout(title='Select points')
     return fig
 
@@ -26,11 +33,10 @@ def get_bar_graph(selected_datasets):
     fig=fig.update_layout(barmode='group')
     return fig
 
-def get_dist_plot(selected_datasets):
-    if not selected_datasets:
+def get_dist_plot(ids):
+    if not ids:
         return get_empty_graph()
-    labels = selected_datasets
-    fig = ff.create_distplot([np.random.randn(200) - x for x in range(len(selected_datasets))], selected_datasets)
+    fig = ff.create_distplot([np.random.randn(200) - x for x in range(len(names))], names)
     return fig
 
 def get_empty_graph():
