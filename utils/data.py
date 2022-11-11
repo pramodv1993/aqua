@@ -1,7 +1,22 @@
 # -*- coding: utf-8 -*-
-
-
 from s3path import S3Path
+import pandas as pd
+
+dataset = pd.read_csv('datasets/dataset.csv')
+metrics = pd.read_csv('datasets/metrics.csv')
+composition = pd.read_csv('datasets/global_size.csv')
+names = dataset.name.unique()
+
+def filter_points(selected_datasets, ids):
+    filtered = None
+    if selected_datasets:
+        filtered = dataset[dataset.name.isin(selected_datasets)]
+    if ids:
+        if filtered is not None:
+            filtered = filtered[filtered.id.isin(ids)]
+        else:
+            filtered = dataset[dataset.id.isin(ids)]
+    return filtered
 
 
 class S3PathBuilder:

@@ -5,24 +5,17 @@ import plotly.figure_factory as ff
 import pandas as pd
 import numpy as np
 
-dataset = pd.read_csv('datasets/dataset.csv')
-metrics = pd.read_csv('datasets/metrics.csv')
-names = dataset.name.unique()
+from utils import data
 
-def get_scatter_plot(selected_datasets=None, ids=None):
+def get_or_update_scatter_plot(selected_datasets=None, ids=None, datasets=None, prev_filtered=None):
     if not selected_datasets and not ids:
-        return get_empty_graph()
-    filtered = None
-    if selected_datasets:
-        filtered = dataset[dataset.name.isin(selected_datasets)]
-    if ids:
-        if filtered:
-            filtered = filtered[filtered.id.isin(ids)]
-        else:
-            filtered = dataset[dataset.id.isin(ids)]
+        return get_empty_graph(), prev_filtered
+    filtered = data.filter_points(selected_datasets, ids)
+    if prev_filtered is not None:
+        filtered = pd.concat((prev_filtered, filtered))
+        filtered = filtered.drop_duplicates(subset=['id'])
     fig = px.scatter(filtered, x='pc1', y='pc2', color='name', hover_data=['id'])
-    fig.update_layout(title='Select points')
-    return fig
+    return fig, filtered
 
 def get_bar_graph(selected_datasets):
     if not selected_datasets:
@@ -36,7 +29,7 @@ def get_bar_graph(selected_datasets):
 def get_dist_plot(ids):
     if not ids:
         return get_empty_graph()
-    fig = ff.create_distplot([np.random.randn(200) - x for x in range(len(names))], names)
+    fig = ff.create_distplot([np.random.randn(200) - x for x in range(len(data.names))], data.names)
     return fig
 
 def get_empty_graph():
@@ -45,7 +38,26 @@ def get_empty_graph():
     paper_bgcolor="#F9F9F9",
     xaxis = dict(showticklabels=False, showgrid=False, zeroline = False),
     yaxis = dict(showticklabels = False, showgrid=False, zeroline = False),
-    height=700, width=700)
+    height=800, width=700)
     empty_graph = go.Figure()
     # empty_graph.update_layout(empty_layout)
     return empty_graph
+
+def _build_tree_map(dataset):
+    fig = px.treemap(dataset, path=[px.Constant("all"), 'lang', 'name'], values='count')
+    fig.update_traces(root_color="lightgrey")
+    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25), title='Composition')
+    return fig
+
+def get_data_composition_graph(selected_datasets, selected_points=None):
+    if selected_points:
+        filtered = data.filter_points(selected_datasets, selected_points)
+        filtered = filtered.groupby(by=['name', 'lang']).count().reset_index()[['name', 'lang', 'id']]
+        filtered.columns=['name', 'lang', 'count']
+    else:
+        filtered = data.composition[data.composition.name.isin(selected_datasets)]
+    
+    if filtered is None or not len(filtered):
+        return get_empty_graph()
+    return _build_tree_map(filtered)
+    return fig
