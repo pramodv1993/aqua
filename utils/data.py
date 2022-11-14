@@ -18,6 +18,9 @@ def filter_points(selected_datasets=None, ids=None):
             filtered = dataset[dataset.id.isin(ids)]
     return filtered
 
+def get_metrics_for_points(ids):
+    return metrics[metrics.id.isin(ids)]
+
 def update_filtered_points(prev_filtered, new_filtered):
     if prev_filtered is not None:
         new_filtered = pd.concat((prev_filtered, new_filtered))

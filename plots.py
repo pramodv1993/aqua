@@ -22,10 +22,15 @@ def get_bar_graph(selected_datasets=None):
     fig=fig.update_layout(barmode='group')
     return fig
 
-def get_dist_plot(ids):
-    if not ids:
+def get_dist_plot(points, lb=None, ub=None):
+    if points is None:
         return get_empty_graph()
-    fig = ff.create_distplot([np.random.randn(200) - x for x in range(len(data.names))], data.names)
+    metrics_for_points = data.get_metrics_for_points(points.id)
+    fig = px.histogram(metrics_for_points, x='total_words_per_doc', marginal='box', color='name')
+    if lb:
+        fig.add_vline(x=lb, line_width=2, line_dash='dash')
+    if ub:
+        fig.add_vline(x=ub, line_width=2, line_dash='dash')
     return fig
 
 def get_empty_graph():
@@ -45,15 +50,7 @@ def _build_tree_map(dataset):
     fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
     return fig
 
-def get_data_composition_graph(selected_datasets=None, selected_points=None):
-    if selected_points:
-        filtered = data.filter_points(selected_datasets, selected_points)
-        filtered = filtered.groupby(by=['name', 'lang']).count().reset_index()[['name', 'lang', 'id']]
-        filtered.columns=['name', 'lang', 'count']
-    else:
-        filtered = data.composition[data.composition.name.isin(selected_datasets)]
-    
-    if filtered is None or not len(filtered):
+def get_data_composition_graph(points=None):
+    if points is None:
         return get_empty_graph()
-    return _build_tree_map(filtered)
-    return fig
+    return _build_tree_map(points)
