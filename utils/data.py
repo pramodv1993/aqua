@@ -7,7 +7,7 @@ metrics = pd.read_csv('datasets/metrics.csv')
 composition = pd.read_csv('datasets/global_size.csv')
 names = dataset.name.unique()
 
-def filter_points(selected_datasets, ids):
+def filter_points(selected_datasets=None, ids=None):
     filtered = None
     if selected_datasets:
         filtered = dataset[dataset.name.isin(selected_datasets)]
@@ -18,6 +18,11 @@ def filter_points(selected_datasets, ids):
             filtered = dataset[dataset.id.isin(ids)]
     return filtered
 
+def update_filtered_points(prev_filtered, new_filtered):
+    if prev_filtered is not None:
+        new_filtered = pd.concat((prev_filtered, new_filtered))
+        new_filtered = new_filtered.drop_duplicates(subset=['id'])
+    return new_filtered
 
 class S3PathBuilder:
     """

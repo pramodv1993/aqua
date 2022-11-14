@@ -7,15 +7,11 @@ import numpy as np
 
 from utils import data
 
-def get_or_update_scatter_plot(selected_datasets=None, ids=None, datasets=None, prev_filtered=None):
-    if not selected_datasets and not ids:
-        return get_empty_graph(), prev_filtered
-    filtered = data.filter_points(selected_datasets, ids)
-    if prev_filtered is not None:
-        filtered = pd.concat((prev_filtered, filtered))
-        filtered = filtered.drop_duplicates(subset=['id'])
-    fig = px.scatter(filtered, x='pc1', y='pc2', color='name', hover_data=['id'])
-    return fig, filtered
+def get_scatter_plot(points):
+    if points is None:
+        return get_empty_graph()
+    fig = px.scatter(points, x='pc1', y='pc2', color='name', hover_data=['id'])
+    return fig
 
 def get_bar_graph(selected_datasets=None):
     if not selected_datasets:
