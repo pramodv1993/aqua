@@ -17,7 +17,7 @@ def get_or_update_scatter_plot(selected_datasets=None, ids=None, datasets=None, 
     fig = px.scatter(filtered, x='pc1', y='pc2', color='name', hover_data=['id'])
     return fig, filtered
 
-def get_bar_graph(selected_datasets):
+def get_bar_graph(selected_datasets=None):
     if not selected_datasets:
         return get_empty_graph()
     fig = go.Figure(data=[
@@ -46,10 +46,10 @@ def get_empty_graph():
 def _build_tree_map(dataset):
     fig = px.treemap(dataset, path=[px.Constant("all"), 'lang', 'name'], values='count')
     fig.update_traces(root_color="lightgrey")
-    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25), title='Composition')
+    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
     return fig
 
-def get_data_composition_graph(selected_datasets, selected_points=None):
+def get_data_composition_graph(selected_datasets=None, selected_points=None):
     if selected_points:
         filtered = data.filter_points(selected_datasets, selected_points)
         filtered = filtered.groupby(by=['name', 'lang']).count().reset_index()[['name', 'lang', 'id']]
