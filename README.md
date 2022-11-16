@@ -1,5 +1,5 @@
 # AQuA
-A framework for data quality introspection and curation.
+A QUality Assistant utility for text corpora introspection and curation.
 
 
 Run the command:
