@@ -82,8 +82,12 @@ def make_layout():
             
             #config-row 3
             html.Div(children=[
-                _create_range_slider(1, 4, 4, title="avg word lengths"),
-                 _create_range_slider(1, 5, 5, title="#sentences / doc")
+                _create_range_slider(1, 4, 4,\
+                    max_r=data.metrics.avg_word_length.max(),
+                    title="avg word lengths"),
+                 _create_range_slider(1, 5, 5,\
+                    max_r=data.metrics.total_num_sent.max(),
+                    title="#sentences / doc")
             ],  className="row"),
             #graphs-row 3
             html.Div(children=[
@@ -95,8 +99,10 @@ def make_layout():
 
             #config-row 4
             html.Div(children=[
-                _create_range_slider(1, 6, 6, title="avg sent lengths"),
-                 _create_range_slider(1, 7, 7, title="token type ratio")
+                _create_range_slider(1, 6, 6,\
+                    max_r=data.metrics.avg_sent_length.max(), title="avg sent lengths"),
+                 _create_range_slider(1, 7, 7,\
+                    max_r=data.metrics.token_type_ratio.max(), title="token type ratio")
             ],  className="row"),
             #graphs-row 4
             html.Div(children=[
@@ -108,8 +114,10 @@ def make_layout():
 
             #config-row 5
             html.Div(children=[
-                _create_range_slider(1, 8, 8, title="symbol-word ratio"),
-                 _create_range_slider(1, 9, 9, title="#non-alphabet words")
+                _create_range_slider(1, 8, 8,\
+                    max_r=data.metrics.symbol_word_ratio.max(), title="symbol-word ratio"),
+                 _create_range_slider(1, 9, 9,\
+                    max_r=data.metrics.num_non_alphabet_words.max(), title="#non-alphabet words")
             ],  className="row"),
             #graphs-row 4
             html.Div(children=[

@@ -2,10 +2,30 @@
 from s3path import S3Path
 import pandas as pd
 
+
 dataset = pd.read_csv('datasets/dataset.csv')
 metrics = pd.read_csv('datasets/metrics.csv')
 composition = pd.read_csv('datasets/global_size.csv')
 names = dataset.name.unique()
+#metrics
+stage_1_metrics = [
+ #(graphnum, metric name)   
+                    (3, 'total_words_per_doc'),
+                    (4, 'avg_word_length'), 
+                    (5, 'total_num_sent'),
+                    (6, 'avg_sent_length'),
+                    (7, 'token_type_ratio'),
+                    (8, 'symbol_word_ratio'),
+                    (9, 'num_non_alphabet_words')]
+stage_2_metrics = [(1, 'num_stop words'),
+                    (2, 'num_abbreviations'),
+                    (3, 'num_exact_dupl'),
+                    (4, 'num_near_dup')]
+stage_vs_metrics = {'stage1': stage_1_metrics, 'stage2': stage_2_metrics}
+
+num_graphs = {'stage1': 9, 'stage2':4, 'stage3':2}
+
+
 
 def filter_points(selected_datasets=None, ids=None):
     filtered = None
