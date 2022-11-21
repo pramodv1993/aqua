@@ -26,6 +26,7 @@ def define_callbacks(app):
         triggered_id = ctx.triggered_id
         if triggered_id=='refresh_view':
             prev_filtered = None
+            plots.prev_s1_g1 = plots.get_empty_graph()
             return plots.prev_s1_g1
         if not selectedData or not len(selectedData['points']):
             return plots.prev_s1_g1
@@ -50,7 +51,19 @@ def define_callbacks(app):
                 Output('stage1_g8', 'figure'),
                 Output('stage1_g8_selected_range', 'children'),
                 Output('stage1_g9', 'figure'),
-                Output('stage1_g9_selected_range', 'children')],
+                Output('stage1_g9_selected_range', 'children'),
+
+                Output('stage2_g1', 'figure'),
+                Output('stage2_g1_selected_range', 'children'),
+                Output('stage2_g2', 'figure'),
+                Output('stage2_g2_selected_range', 'children'),
+                Output('stage2_g3', 'figure'),
+                Output('stage2_g3_selected_range', 'children'),
+                Output('stage2_g4', 'figure'),
+                Output('stage2_g4_selected_range', 'children'),
+
+                Output('stage3_g1', 'figure'),
+                Output('stage3_g2', 'figure'),],
                 
                 [Input('global_view', 'selectedData'),
                 Input('dataset_selector', "value"),
@@ -62,7 +75,13 @@ def define_callbacks(app):
                 Input('stage1_g6_range', 'value'),
                 Input('stage1_g7_range', 'value'),
                 Input('stage1_g8_range', 'value'),
-                Input('stage1_g9_range', 'value')])
+                Input('stage1_g9_range', 'value'),
+                
+                Input('stage2_g1_range', 'value'),
+                Input('stage2_g2_range', 'value'),
+                Input('stage2_g3_range', 'value'),
+                Input('stage2_g4_range', 'value'),
+                ])
     def update_stage_1_graphs(selected_points, selected_datasets, n_clicks, refresh_n_clicks,\
         s1_g3_range=None,\
         s1_g4_range=None,\
@@ -71,6 +90,10 @@ def define_callbacks(app):
         s1_g7_range=None,\
         s1_g8_range=None,\
         s1_g9_range=None,
+        s2_g1_range=None,\
+        s2_g2_range=None,\
+        s2_g3_range=None,\
+        s2_g4_range=None,\
         ):
         global prev_selected_datasets, prev_filtered
         triggered_id = ctx.triggered_id
@@ -84,6 +107,10 @@ def define_callbacks(app):
         s1_g7_selected_range = html.H4(f"Selected Range: {s1_g7_range}")
         s1_g8_selected_range = html.H4(f"Selected Range: {s1_g8_range}")
         s1_g9_selected_range = html.H4(f"Selected Range: {s1_g9_range}")
+        s2_g1_selected_range = html.H4(f"Selected Range: {s2_g1_range}")
+        s2_g2_selected_range = html.H4(f"Selected Range: {s2_g2_range}")
+        s2_g3_selected_range = html.H4(f"Selected Range: {s2_g3_range}")
+        s2_g4_selected_range = html.H4(f"Selected Range: {s2_g4_range}")
 
         if selected_datasets is not None:
             prev_selected_datasets = selected_datasets
@@ -91,7 +118,9 @@ def define_callbacks(app):
         if triggered_id=="fixed_points":
             if prev_filtered is not None:
                 cnt_points = cnt_points_by_src(prev_filtered)
-                plots.update_dist_plots_for_stage(points=prev_filtered, stage_num=1)
+                plots.update_dist_plots_for_stage(points=prev_filtered, stage_nums=[1,2])
+                plots.update_classifier_plot(points=prev_filtered)
+                plots.update_topics_plot(points=prev_filtered)
 
         elif triggered_id=='global_view' and\
              selected_points and\
@@ -99,11 +128,13 @@ def define_callbacks(app):
                 ids = [point['customdata'][0] for point in selected_points['points']]
                 filtered = data.filter_points(prev_selected_datasets, ids)
                 cnt_points = cnt_points_by_src(filtered)
-                plots.update_dist_plots_for_stage(points=filtered, stage_num=1)
+                plots.update_dist_plots_for_stage(points=filtered, stage_nums=[1,2])
+                # plots.update_classifier_plot(points=filtered)
+                # plots.update_topics_plot(points=filtered)
                 
         elif triggered_id=="refresh_view":
-            plots.reset_graphs(stage_num=1)
-        
+            plots.reset_graphs(stage_nums=[1,2,3])
+        #stage I
         elif triggered_id=="stage1_g3_range":
             lb, ub = s1_g3_range
             plots.prev_s1_g3 = plots.get_dist_plot(points=prev_filtered,
@@ -148,6 +179,31 @@ def define_callbacks(app):
                                              lb=lb,
                                              ub=ub,
                                              metric='num_non_alphabet_words')
+        #stage II
+        elif triggered_id=="stage2_g1_range":
+            lb, ub = s2_g1_range
+            plots.prev_s2_g1 = plots.get_dist_plot(points=prev_filtered,
+                                             lb=lb,
+                                             ub=ub,
+                                             metric='num_stopwords_per_doc')
+        elif triggered_id=="stage2_g2_range":
+            lb, ub = s2_g2_range
+            plots.prev_s2_g2 = plots.get_dist_plot(points=prev_filtered,
+                                             lb=lb,
+                                             ub=ub,
+                                             metric='num_abbreviations_per_doc')
+        elif triggered_id=="stage2_g3_range":
+            lb, ub = s2_g3_range
+            plots.prev_s2_g3 = plots.get_dist_plot(points=prev_filtered,
+                                             lb=lb,
+                                             ub=ub,
+                                             metric='num_exact_duplicates')
+        elif triggered_id=="stage2_g4_range":
+            lb, ub = s2_g4_range
+            plots.prev_s2_g4 = plots.get_dist_plot(points=prev_filtered,
+                                             lb=lb,
+                                             ub=ub,
+                                             metric='num_near_duplicates')
 
         else:
             #dataset_selector
@@ -165,4 +221,12 @@ def define_callbacks(app):
                 plots.prev_s1_g6, s1_g6_selected_range,
                 plots.prev_s1_g7, s1_g7_selected_range,
                 plots.prev_s1_g8, s1_g8_selected_range,
-                plots.prev_s1_g9, s1_g9_selected_range)
+                plots.prev_s1_g9, s1_g9_selected_range,
+                #stage II
+                plots.prev_s2_g1, s1_g6_selected_range,
+                plots.prev_s2_g3, s1_g7_selected_range,
+                plots.prev_s2_g2, s1_g8_selected_range,
+                plots.prev_s2_g4, s1_g9_selected_range,
+                #stage III
+                plots.prev_s3_g1,
+                plots.prev_s3_g2)

@@ -26,8 +26,9 @@ def _create_range_slider(stage_num,\
                     ], \
                     className=div_class)
 
-def _create_metric_graph(stage_num, graph_num, metric_num):
-    return html.Div(children=[                
+def _create_metric_graph(stage_num, graph_num, metric_num, title=None):
+    return html.Div(children=[  
+                    # html.H4(title),              
                     html.Div(children= dcc.Graph(id=f"stage{stage_num}_g{graph_num}"), className='pretty_container six columns')], 
             id=f'metric{metric_num}')
 
@@ -37,14 +38,20 @@ def _create_empty_graph(graph_id, div_id, div_class):
 def _create_global_dataselector(datasets):
     return html.Div(style={'marginLeft' : '30px'}, children=[\
                 html.Br(),
-                html.H4("Select points:"), html.Br(),\
+                html.Div([
+                        html.H4("Embedding model:"),
+                        dcc.Dropdown(['T5', 'RoBERTa', 'DistillBERT'], id='embed'),
+                        html.H4("Dim Reduction approach:"),
+                        dcc.Dropdown(['PCA', 'MDS', 'UMAP', 't-SNE'], id='dimred'),
+                ]),
+                html.H4("Datasets:"), html.Br(),\
                 dcc.Checklist(datasets, value=[], id='dataset_selector')],
                 id='checklist_container', className='pretty_container six columns')
 
 def make_layout():
-    return html.Div(children=[
+    return html.Div(style={'backgroundColor': '#E5E5E5'}, children=[
     html.H1(children='AQuA'),
-    html.H4(children=[html.B('A Qu'), 'ality ', html.B('A'), 'ssistance framework for introspecting your text corpora..']),
+    html.H4(children=[html.B('A Qu'), 'ality ', html.B('A'), 'ssistance framework for introspecting and curating your text corpora..']),
     dcc.Tabs([
         #First stage of the pipeline - basic analysis
         dcc.Tab(label='Stage I', children=[
@@ -126,6 +133,8 @@ def make_layout():
                 #non-alphabet words graph
                 _create_metric_graph(1, 9, 9)
             ],  className="row"),
+            html.Br(),
+            html.Div(html.Button("Export Snapshot", id='export_dataset_s1'), className='offset-by-five columns')
             
         ]),
 
@@ -133,8 +142,10 @@ def make_layout():
         dcc.Tab(label='Stage II', children=[
             #config-row 1
             html.Div(children=[
-                        _create_range_slider(2, 1, 10, title="% of stop words "),
-                        _create_range_slider(2, 2, 11, title="% of abbreviations"),
+                        _create_range_slider(2, 1, 10,\
+                    max_r=data.metrics.num_stopwords_per_doc.max(), title="#stop words/doc"),
+                        _create_range_slider(2, 2, 11,\
+                    max_r=data.metrics.num_abbreviations_per_doc.max(), title="#abbreviations / doc"),
             ],  className="row"),
             #graphs-row 1
             html.Div([
@@ -144,29 +155,34 @@ def make_layout():
                     ],  className="row"),
             #config-row 2
             html.Div(children=[
-                _create_range_slider(2, 3, 12, title="# of exact duplicates"),
-                _create_range_slider(2, 4, 13, title="# of near duplicates"),
+                _create_range_slider(2, 3, 12,\
+                    max_r=data.metrics.num_exact_duplicates.max(), title="# of exact duplicates"),
+                _create_range_slider(2, 4, 13,\
+                    max_r=data.metrics.num_near_duplicates.max(), title="# of near duplicates"),
             ],  className="row"),
             #graphs-row 2
             html.Div(children=[
                 _create_metric_graph(2, 3, 12),
                 _create_metric_graph(2, 4, 13),
-            ],  className="row")
+            ],  className="row"),
+            html.Br(),
+            html.Div(html.Button("Export Snapshot", id='export_dataset_s2'), className='offset-by-five columns')
         ]),
 
         #Third stage of the pipeline
         dcc.Tab(label='Stage III', children=[
             #config-row 1
             html.Div(children=[
-                        _create_range_slider(3, 1, 14, title="Topics distribution"),
-                        _create_range_slider(3, 2, 15, "classifier quality distribution"),
+                        html.H4("Classifier Analysis", className='pretty_container six columns'),
+                        html.H4("Topics distributions", className='pretty_container six columns'),
             ],  className="row"),
             #graphs-row 1
             html.Div([
-                html.Div([
-                    _create_metric_graph(3, 1, 14),
-                    _create_metric_graph(3, 2, 15)]),
-                    ],  className="row")
+                _create_metric_graph(3, 1, 14),
+                _create_metric_graph(3, 2, 15)],
+                className="row"),
+            html.Br(),
+            html.Div(html.Button("Export Snapshot", id='export_dataset_s3'), className='offset-by-five columns')
         ]),
 
     ]),

@@ -8,22 +8,23 @@ metrics = pd.read_csv('datasets/metrics.csv')
 composition = pd.read_csv('datasets/global_size.csv')
 names = dataset.name.unique()
 #metrics
-stage_1_metrics = [
- #(graphnum, metric name)   
-                    (3, 'total_words_per_doc'),
-                    (4, 'avg_word_length'), 
-                    (5, 'total_num_sent'),
-                    (6, 'avg_sent_length'),
-                    (7, 'token_type_ratio'),
-                    (8, 'symbol_word_ratio'),
-                    (9, 'num_non_alphabet_words')]
-stage_2_metrics = [(1, 'num_stop words'),
-                    (2, 'num_abbreviations'),
-                    (3, 'num_exact_dupl'),
-                    (4, 'num_near_dup')]
-stage_vs_metrics = {'stage1': stage_1_metrics, 'stage2': stage_2_metrics}
+stage_1_metrics = {
+                    2: 'composition',
+                    3: 'total_words_per_doc',
+                    4:'avg_word_length', 
+                    5: 'total_num_sent',
+                    6: 'avg_sent_length',
+                    7: 'token_type_ratio',
+                    8: 'symbol_word_ratio',
+                    9:'num_non_alphabet_words'}
+stage_2_metrics = {1: 'num_stopwords_per_doc',
+                    2: 'num_abbreviations_per_doc',
+                    3: 'num_exact_duplicates',
+                    4: 'num_near_duplicates'}
 
-num_graphs = {'stage1': 9, 'stage2':4, 'stage3':2}
+stage_3_metrics = {1: 'topic_distribution',
+                    2: 'classifier_scores'}
+stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics}
 
 
 

@@ -1,21 +1,30 @@
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn import svm
+from sklearn.preprocessing import StandardScaler
+
 from dash import dcc
 import plotly.graph_objects as go
 import plotly.express as px
+from plotly import io
 import plotly.figure_factory as ff
-import pandas as pd
-import numpy as np
+from plotly.subplots import make_subplots
+
 
 from utils import data
 
+paper_bg_color = '#FDF5F5'
+plot_bg_color='#e8eaef'
 def get_empty_graph():
     #empty_graph
-    empty_layout = go.Layout(plot_bgcolor="#F9F9F9",
-    paper_bgcolor="#F9F9F9",
-    xaxis = dict(showticklabels=False, showgrid=False, zeroline = False),
-    yaxis = dict(showticklabels = False, showgrid=False, zeroline = False),
-    height=800, width=700)
+    empty_layout = go.Layout(   paper_bgcolor=paper_bg_color,
+    plot_bgcolor=plot_bg_color,
+    xaxis = dict(showticklabels=True, showgrid=True, zeroline = True),
+    yaxis = dict(showticklabels = True, showgrid=True, zeroline = True))
     empty_graph = go.Figure()
-    # empty_graph.update_layout(empty_layout)
+    empty_graph.update_layout(empty_layout)
     return empty_graph
 
 #stage1 graphs
@@ -28,48 +37,146 @@ prev_s1_g6 = get_empty_graph()
 prev_s1_g7 = get_empty_graph()
 prev_s1_g8 = get_empty_graph()
 prev_s1_g9 = get_empty_graph()
+#stage2 graphs
+prev_s2_g1 = get_empty_graph()
+prev_s2_g3 = get_empty_graph()
+prev_s2_g2 = get_empty_graph()
+prev_s2_g4 = get_empty_graph()
+#stage3 graphs
+prev_s3_g1 = get_empty_graph()
+prev_s3_g2 = get_empty_graph()
 
-def reset_graphs(stage_num=None):
-    if stage_num:
-        for graph_num in range(1, data.num_graphs[f'stage{stage_num}']+1):
-            globals()[f'prev_s{stage_num}_g{graph_num}'] = get_empty_graph()
+def reset_graphs(stage_nums=None):
+    if stage_nums:
+        for stage_num in stage_nums:
+            for graph_num, metric in data.stage_vs_metrics[stage_num].items():
+                globals()[f'prev_s{stage_num}_g{graph_num}'] = get_empty_graph()
 
-def update_dist_plots_for_stage(points, stage_num=None, ub=None, lb=None):
-    if stage_num:
-        for graph_num, metric in data.stage_vs_metrics[f'stage{stage_num}']:
-            globals()[f'prev_s{stage_num}_g{graph_num}'] = get_dist_plot(points, lb, ub, metric)
-
+def update_dist_plots_for_stage(points, stage_nums=None, ub=None, lb=None):
+    if stage_nums:
+        for stage_num in stage_nums:
+            for graph_num, metric in data.stage_vs_metrics[stage_num].items():
+                if (stage_num==1 and graph_num==2) or (stage_num==3):
+                    continue
+                globals()[f'prev_s{stage_num}_g{graph_num}'] = get_dist_plot(points, lb, ub, metric)
 
 def get_scatter_plot(points):
     if points is None:
         return get_empty_graph()
-    fig = px.scatter(points, x='pc1', y='pc2', color='name', hover_data=['id'])
+    fig = px.scatter(points, x='pc1', y='pc2', color='name', hover_data=['id'],\
+         color_discrete_sequence=px.colors.qualitative.Vivid)
+    fig.update_layout(    
+    paper_bgcolor=paper_bg_color,
+    plot_bgcolor=plot_bg_color)
     return fig
+
+def update_classifier_plot(points):
+    h = .02
+    if points is None:
+        return get_empty_graph()
+    #generate dummy labels for selected points
+    X, y = np.array(pd.concat([points.pc1, points.pc2], axis=1)), np.array([np.random.randint(2) for _ in range(points.shape[0])])
+    y_conf = np.array([np.random.rand() for _ in range(points.shape[0])])
+    X = StandardScaler().fit_transform(X)
+    trees = RandomForestClassifier(max_depth=10,\
+                                   n_estimators=10)
+    # trees = AdaBoostClassifier()
+    # trees.fit(X[:len(X)//2],y[:len(X)//2])
+    trees.fit(X, y)
+
+    #get predictions for entire grid to plot heatmap
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h)
+                    , np.arange(y_min, y_max, h))
+    y_ = np.arange(y_min, y_max, h)
+    Z = trees.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    
+    color_scale = 'teal'
+    trace1 = go.Heatmap(x=xx[0], y=y_, z=Z,
+                colorscale=color_scale,
+                showscale=True)
+    # fig = io.read_json('boundary.json')
+    trace2 = go.Scatter(x=X[:, 0], y=X[:, 1],
+                        mode='markers',
+                        showlegend=False,
+                        marker=dict(size=10,
+                                    color=y, 
+                                    colorscale=color_scale,
+                                    line=dict(color='black', width=1))
+                        )
+    layout= go.Layout(
+            autosize= True,
+            title= 'Random Forest (1: Higher Quality)',
+            hovermode= 'closest',
+            showlegend= False,
+            paper_bgcolor=paper_bg_color,
+            plot_bgcolor=plot_bg_color)
+    fig = go.Figure(data = [trace1, trace2], layout=layout) 
+    globals()['prev_s3_g1'] = fig
+
+
+def update_topics_plot(points):
+    datasets = points.name.unique()
+    num_datasets = len(datasets)
+    num_topics = 10
+    num_rows = (num_datasets//2 + num_datasets%2)
+    fig = make_subplots(rows=num_rows, cols=2)
+    dataset = iter(datasets)
+    for i in range(1, num_rows+1):
+        try:
+            for j in range(1, 3):
+                fig.add_trace(
+                    go.Bar(
+                        x=[np.random.rand() for _ in range(num_topics)],
+                        y=[f'topic_{i}' for i in range(num_topics)],
+                        orientation='h',
+                        name=next(dataset)
+                        ),
+                row=i, col=j
+                )
+        except:
+            break
+    fig.update_layout(bargap=0.17,
+         width=1000,
+         height=600,
+         paper_bgcolor=paper_bg_color,
+         plot_bgcolor=plot_bg_color)
+    globals()['prev_s3_g2'] = fig
 
 def get_bar_graph(selected_datasets=None):
     if not selected_datasets:
         return get_empty_graph()
     fig = go.Figure(data=[
-        go.Bar(name=dataset, x=['m1', 'm2', 'm3', 'm4'], y = [np.random.randn(20) for _ in range(4)]) for dataset in selected_datasets
+        go.Bar(name=dataset, x=['m1', 'm2', 'm3', 'm4'],\
+             y = [np.random.randn(20) for _ in range(4)]) for dataset in selected_datasets
     ])
-    fig=fig.update_layout(barmode='group')
+    fig.update_layout(    
+    barmode='group',
+    paper_bgcolor=paper_bg_color,
+    plot_bgcolor=plot_bg_color)
     return fig
 
 def get_dist_plot(points, lb=None, ub=None, metric=None):
     if points is None:
         return get_empty_graph()
     metrics_for_points = data.get_metrics_for_points(points.id)
-    fig = px.histogram(metrics_for_points, x=metric, marginal='box', color='name')
+    fig = px.histogram(metrics_for_points, x=metric, marginal='box', color='name', color_discrete_sequence=px.colors.qualitative.Vivid)
     if lb:
         fig.add_vline(x=lb, line_width=2, line_dash='dash')
     if ub:
         fig.add_vline(x=ub, line_width=2, line_dash='dash')
+    fig.update_layout(    
+    paper_bgcolor=paper_bg_color,
+    plot_bgcolor=plot_bg_color)
     return fig
 
 def _build_tree_map(dataset):
     fig = px.treemap(dataset, path=[px.Constant("all"), 'lang', 'name'], values='count')
     fig.update_traces(root_color="lightgrey")
-    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25))
+    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),  paper_bgcolor='#E5E5E5',
+    plot_bgcolor='#e8eaef' )
     return fig
 
 def get_data_composition_graph(points=None):
