@@ -2,12 +2,33 @@
 from s3path import S3Path
 import pandas as pd
 
+
 dataset = pd.read_csv('datasets/dataset.csv')
 metrics = pd.read_csv('datasets/metrics.csv')
 composition = pd.read_csv('datasets/global_size.csv')
 names = dataset.name.unique()
+#metrics
+stage_1_metrics = {
+                    2: 'composition',
+                    3: 'total_words_per_doc',
+                    4:'avg_word_length', 
+                    5: 'total_num_sent',
+                    6: 'avg_sent_length',
+                    7: 'token_type_ratio',
+                    8: 'symbol_word_ratio',
+                    9:'num_non_alphabet_words'}
+stage_2_metrics = {1: 'num_stopwords_per_doc',
+                    2: 'num_abbreviations_per_doc',
+                    3: 'num_exact_duplicates',
+                    4: 'num_near_duplicates'}
 
-def filter_points(selected_datasets, ids):
+stage_3_metrics = {1: 'topic_distribution',
+                    2: 'classifier_scores'}
+stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics}
+
+
+
+def filter_points(selected_datasets=None, ids=None):
     filtered = None
     if selected_datasets:
         filtered = dataset[dataset.name.isin(selected_datasets)]
@@ -18,6 +39,14 @@ def filter_points(selected_datasets, ids):
             filtered = dataset[dataset.id.isin(ids)]
     return filtered
 
+def get_metrics_for_points(ids):
+    return metrics[metrics.id.isin(ids)]
+
+def update_filtered_points(prev_filtered, new_filtered):
+    if prev_filtered is not None:
+        new_filtered = pd.concat((prev_filtered, new_filtered))
+        new_filtered = new_filtered.drop_duplicates(subset=['id'])
+    return new_filtered
 
 class S3PathBuilder:
     """
