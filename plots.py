@@ -131,6 +131,7 @@ def update_topics_plot(points):
             for j in range(1, 3):
                 fig.add_trace(
                     go.Bar(
+                        # id=f'topic_{i}_{dataset}',
                         x=[np.random.rand() for _ in range(num_topics)],
                         y=[f'topic_{i}' for i in range(num_topics)],
                         orientation='h',
@@ -145,7 +146,7 @@ def update_topics_plot(points):
          height=600,
          paper_bgcolor=paper_bg_color,
          plot_bgcolor=plot_bg_color)
-    globals()['prev_s3_g2'] = fig
+    globals()['prev_s3_g2']= fig
 
 def get_bar_graph(selected_datasets=None):
     if not selected_datasets:
@@ -186,3 +187,27 @@ def get_data_composition_graph(points=None):
     if points is None:
         return get_empty_graph()
     return _build_tree_map(points)
+
+def update_bias_plot(points):
+    if points is None:
+        return get_empty_graph()
+    datasets = points.name.unique()
+    fig = go.Figure()
+    for name in datasets:
+        fig.add_trace(go.Scatterpolar(
+            r=data.get_bias_info_for_dataset(name),
+            theta=data.bias.columns[1:],
+            fill='toself',
+            name=name,
+    ))
+    fig.update_layout(
+        width=1000,
+        polar=dict(
+        radialaxis=dict(
+            visible=True,
+            range=[0, 1]
+        )),
+        showlegend=True
+    )
+    globals()['prev_s4_g2'] = fig
+ 

@@ -64,7 +64,9 @@ def define_callbacks(app):
                 Output('stage2_g4_selected_range', 'children'),
 
                 Output('stage3_g1', 'figure'),
-                Output('stage3_g2', 'figure'),],
+                Output('stage3_g2', 'figure'),
+                
+                Output('stage4_g2', 'figure')],
                 
                 [Input('global_view', 'selectedData'),
                 Input('dataset_selector', "value"),
@@ -122,6 +124,7 @@ def define_callbacks(app):
                 plots.update_dist_plots_for_stage(points=prev_filtered, stage_nums=[1,2])
                 plots.update_classifier_plot(points=prev_filtered)
                 plots.update_topics_plot(points=prev_filtered)
+                plots.update_bias_plot(points=prev_filtered)
 
         elif triggered_id=='global_view' and\
              selected_points and\
@@ -230,8 +233,18 @@ def define_callbacks(app):
                 plots.prev_s2_g4, s1_g9_selected_range,
                 #stage III
                 plots.prev_s3_g1,
-                plots.prev_s3_g2)
+                plots.prev_s3_g2,
+                #stage IV
+                plots.prev_s4_g2)
 
+    # @app.callback(
+    #     Output("word_cloud", "children"),
+    #     Input('stage3_g2', 'clickData'),
+    #     # State("stage3_g2", "figure")
+    # )
+    # def update_word_cloud(clickData):
+    #     print(clickData)
+    #     return plots.get_empty_graph()
 
     @app.callback(
     Output("my_modal", "is_open"),
