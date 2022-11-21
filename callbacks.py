@@ -1,4 +1,5 @@
-from dash import html, Input, Output, ctx
+from dash import html, Input, Output, ctx, State
+import dash_bootstrap_components as dbc
 import plots
 import layout
 from utils import data
@@ -100,17 +101,17 @@ def define_callbacks(app):
         cnt_points = None
         filtered = None
         cnt_points_by_src = lambda df: df.groupby(by=['name', 'lang']).count().reset_index()[['name', 'lang', 'id']]
-        s1_g3_selected_range = html.H4(f"Selected Range: {s1_g3_range}")
-        s1_g4_selected_range = html.H4(f"Selected Range: {s1_g4_range}")
-        s1_g5_selected_range = html.H4(f"Selected Range: {s1_g5_range}")
-        s1_g6_selected_range = html.H4(f"Selected Range: {s1_g6_range}")
-        s1_g7_selected_range = html.H4(f"Selected Range: {s1_g7_range}")
-        s1_g8_selected_range = html.H4(f"Selected Range: {s1_g8_range}")
-        s1_g9_selected_range = html.H4(f"Selected Range: {s1_g9_range}")
-        s2_g1_selected_range = html.H4(f"Selected Range: {s2_g1_range}")
-        s2_g2_selected_range = html.H4(f"Selected Range: {s2_g2_range}")
-        s2_g3_selected_range = html.H4(f"Selected Range: {s2_g3_range}")
-        s2_g4_selected_range = html.H4(f"Selected Range: {s2_g4_range}")
+        s1_g3_selected_range = dbc.Label(f"Selected Range: {s1_g3_range}")
+        s1_g4_selected_range = dbc.Label(f"Selected Range: {s1_g4_range}")
+        s1_g5_selected_range = dbc.Label(f"Selected Range: {s1_g5_range}")
+        s1_g6_selected_range = dbc.Label(f"Selected Range: {s1_g6_range}")
+        s1_g7_selected_range = dbc.Label(f"Selected Range: {s1_g7_range}")
+        s1_g8_selected_range = dbc.Label(f"Selected Range: {s1_g8_range}")
+        s1_g9_selected_range = dbc.Label(f"Selected Range: {s1_g9_range}")
+        s2_g1_selected_range = dbc.Label(f"Selected Range: {s2_g1_range}")
+        s2_g2_selected_range = dbc.Label(f"Selected Range: {s2_g2_range}")
+        s2_g3_selected_range = dbc.Label(f"Selected Range: {s2_g3_range}")
+        s2_g4_selected_range = dbc.Label(f"Selected Range: {s2_g4_range}")
 
         if selected_datasets is not None:
             prev_selected_datasets = selected_datasets
@@ -224,9 +225,20 @@ def define_callbacks(app):
                 plots.prev_s1_g9, s1_g9_selected_range,
                 #stage II
                 plots.prev_s2_g1, s1_g6_selected_range,
-                plots.prev_s2_g3, s1_g7_selected_range,
-                plots.prev_s2_g2, s1_g8_selected_range,
+                plots.prev_s2_g2, s1_g7_selected_range,
+                plots.prev_s2_g3, s1_g8_selected_range,
                 plots.prev_s2_g4, s1_g9_selected_range,
                 #stage III
                 plots.prev_s3_g1,
                 plots.prev_s3_g2)
+
+
+    @app.callback(
+    Output("my_modal", "is_open"),
+    [Input("pipeline", "n_clicks"), Input("close_modal", "n_clicks")],
+    [State("my_modal", "is_open")],
+)
+    def toggle_modal(n1, n2, is_open):
+        if n1 or n2:
+            return not is_open
+        return is_open

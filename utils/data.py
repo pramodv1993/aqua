@@ -24,7 +24,10 @@ stage_2_metrics = {1: 'num_stopwords_per_doc',
 
 stage_3_metrics = {1: 'topic_distribution',
                     2: 'classifier_scores'}
-stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics}
+
+stage_4_metrics = {1: 'toxicity',
+                    2: 'bias'}
+stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics, 4: stage_4_metrics}
 
 
 

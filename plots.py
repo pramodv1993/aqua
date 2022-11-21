@@ -15,7 +15,7 @@ from plotly.subplots import make_subplots
 
 from utils import data
 
-paper_bg_color = '#FDF5F5'
+paper_bg_color = '#fafafa'
 plot_bg_color='#e8eaef'
 def get_empty_graph():
     #empty_graph
@@ -45,6 +45,9 @@ prev_s2_g4 = get_empty_graph()
 #stage3 graphs
 prev_s3_g1 = get_empty_graph()
 prev_s3_g2 = get_empty_graph()
+#stage4 graphs
+prev_s4_g1 = get_empty_graph()
+prev_s4_g2 = get_empty_graph()
 
 def reset_graphs(stage_nums=None):
     if stage_nums:
@@ -56,7 +59,8 @@ def update_dist_plots_for_stage(points, stage_nums=None, ub=None, lb=None):
     if stage_nums:
         for stage_num in stage_nums:
             for graph_num, metric in data.stage_vs_metrics[stage_num].items():
-                if (stage_num==1 and graph_num==2) or (stage_num==3):
+                #ignore stages and plots that isnt a distribution
+                if (stage_num==1 and graph_num==2) or (stage_num in [3,4]):
                     continue
                 globals()[f'prev_s{stage_num}_g{graph_num}'] = get_dist_plot(points, lb, ub, metric)
 
@@ -71,7 +75,7 @@ def get_scatter_plot(points):
     return fig
 
 def update_classifier_plot(points):
-    h = .02
+    h = .5
     if points is None:
         return get_empty_graph()
     #generate dummy labels for selected points
@@ -81,9 +85,7 @@ def update_classifier_plot(points):
     trees = RandomForestClassifier(max_depth=10,\
                                    n_estimators=10)
     # trees = AdaBoostClassifier()
-    # trees.fit(X[:len(X)//2],y[:len(X)//2])
     trees.fit(X, y)
-
     #get predictions for entire grid to plot heatmap
     x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
     y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
@@ -175,8 +177,9 @@ def get_dist_plot(points, lb=None, ub=None, metric=None):
 def _build_tree_map(dataset):
     fig = px.treemap(dataset, path=[px.Constant("all"), 'lang', 'name'], values='count')
     fig.update_traces(root_color="lightgrey")
-    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),  paper_bgcolor='#E5E5E5',
-    plot_bgcolor='#e8eaef' )
+    fig.update_layout(margin = dict(t=50, l=25, r=25, b=25),
+    paper_bgcolor=paper_bg_color,
+    plot_bgcolor=plot_bg_color)
     return fig
 
 def get_data_composition_graph(points=None):

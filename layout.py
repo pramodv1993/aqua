@@ -1,4 +1,8 @@
+import base64
+import dash
 from dash import Dash, dcc, html, Input, Output, State, MATCH, ALL
+import dash_bootstrap_components as dbc
+
 import plots
 from Constants import Datasets
 from utils import data
@@ -7,182 +11,279 @@ datasets = [dataset.name for dataset in Datasets]
 def _create_range_slider(stage_num,\
     graph_num,\
     metric_num,\
-    div_class=None,\
     div_style=None,\
     title=None,\
     max_r=100):
     if not title:
         title="Select thresholds:"
-    if not div_class:
-        div_class = "pretty_container six columns"
     return html.Div(
                 style= div_style,
                 children=[
                     html.Br(),
                     html.H4(title),
-                    html.H4("Select Thresholds:"), html.Br(),\
-                    dcc.RangeSlider(0,max_r, id=f"stage{stage_num}_g{graph_num}_range"),  html.Br(),
+                    dbc.Label("Select Thresholds:"), html.Br(),\
+                    dcc.RangeSlider(0, max_r, id=f"stage{stage_num}_g{graph_num}_range"),  html.Br(),
                     html.Div(id=f"stage{stage_num}_g{graph_num}_selected_range")
-                    ], \
-                    className=div_class)
+                    ])
 
 def _create_metric_graph(stage_num, graph_num, metric_num, title=None):
     return html.Div(children=[  
-                    # html.H4(title),              
+                    # dbc.Label(title),              
                     html.Div(children= dcc.Graph(id=f"stage{stage_num}_g{graph_num}"), className='pretty_container six columns')], 
             id=f'metric{metric_num}')
 
-def _create_empty_graph(graph_id, div_id, div_class):
-    return html.Div(children=[dcc.Graph(id=graph_id)], id=div_id, className=div_class)
+def _create_empty_graph(graph_id):
+    return dcc.Graph(id=graph_id)
 
 def _create_global_dataselector(datasets):
     return html.Div(style={'marginLeft' : '30px'}, children=[\
                 html.Br(),
                 html.Div([
-                        html.H4("Embedding model:"),
-                        dcc.Dropdown(['T5', 'RoBERTa', 'DistillBERT'], id='embed'),
-                        html.H4("Dim Reduction approach:"),
-                        dcc.Dropdown(['PCA', 'MDS', 'UMAP', 't-SNE'], id='dimred'),
+                        dbc.Row(dbc.Label("Embedding model:")),
+                        dbc.Row(dcc.Dropdown(['T5', 'RoBERTa', 'DistillBERT'], id='embed')),
+                        dbc.Row(dbc.Label("Dim Reduction approach:")),
+                        dbc.Row(dcc.Dropdown(['PCA', 'MDS', 'UMAP', 't-SNE'], id='dimred')),
                 ]),
-                html.H4("Datasets:"), html.Br(),\
-                dcc.Checklist(datasets, value=[], id='dataset_selector')],
+                dbc.Row(dbc.Label("Datasets:")),\
+                dbc.Row(dbc.Checklist(
+                    options=[{"label": f"{dataset}", "value": dataset} for dataset in datasets], 
+                    value=[],
+                    id='dataset_selector')
+                )],
                 id='checklist_container', className='pretty_container six columns')
 
-def make_layout():
-    return html.Div(style={'backgroundColor': '#E5E5E5'}, children=[
-    html.H1(children='AQuA'),
-    html.H4(children=[html.B('A Qu'), 'ality ', html.B('A'), 'ssistance framework for introspecting and curating your text corpora..']),
-    dcc.Tabs([
-        #First stage of the pipeline - basic analysis
-        dcc.Tab(label='Stage I', children=[
+# Using base64 encoding and decoding
+def b64_image(image_filename):
+    with open(image_filename, 'rb') as f:
+        image = f.read()
+    return 'data:image/png;base64,' + base64.b64encode(image).decode('utf-8')
 
+def create_modal():
+    return html.Div(
+    [
+        dbc.Col(dbc.Button("Framework",
+                    id="pipeline",
+                    n_clicks=0,
+                    className="me-1",
+                    size='sm',
+                    color='primary',
+                    outline=True),
+                width={"offset": 6}),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Quality Analysis Pipeline")),
+                dbc.Row(html.Img(src=b64_image('pipeline.jpg'), width=3100)),
+                # dbc.ModalBody("This is the content of the modal"),
+                dbc.ModalFooter(
+                    dbc.Button(
+                        "Close", id="close_modal", className="ms-auto", n_clicks=0
+                    )
+                ),
+            ],
+            size="lg",
+            id="my_modal",
+            is_open=False,
+        ),
+    ]
+)
+
+def make_layout():
+    return html.Div(children=[
+    dbc.Row(dbc.Container([
+        dbc.Row(dbc.Col(html.H2('AQuA'))),
+        html.Hr(className="my-1"),
+        dbc.Row([
+            dbc.Col(html.P([html.B('A Qu'), 'ality ', html.B('A'), 'ssistance framework for introspecting and curating your text corpora..'])),
+            dbc.Col(create_modal(), md=4)
+        ]),
+    ]), style={'align': 'left', 'margin-left' : '22px'}),
+    dbc.Tabs([
+        #First stage of the pipeline - basic analysis
+        dbc.Tab(label='Stage I', children=[
             #config-row 1
-            html.Div(children=[
-                        _create_global_dataselector(datasets),
-                         html.Div(html.H4("Filtered points:"), className="offset-by-six columns"), html.Br()
-            ],  className="row"),
+            dbc.Row(children=[
+                        dbc.Col(_create_global_dataselector(datasets), md=4),
+            ]),
+            html.P(),
+            dbc.Row([
+                dbc.Col(html.H4("Semantic Overview"), style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Col(html.H4("Filtered points"))
+            ]),
             #graphs-row 1
-            html.Div([
-                html.Div([
-                    _create_empty_graph(graph_id='global_view',\
-                         div_id="global_view_container", \
-                         div_class='pretty_container six columns'),
-                #filtered graph
-                _create_metric_graph(1, 1, 1),
-                html.Div(children=[html.Button("Fix points", id='fixed_points'),\
-                html.Button("Reset selection", id='refresh_view')], className="offset-by-six columns")
-])        
-            ],  className="row"),
+            dbc.Row([
+                    dbc.Col(_create_empty_graph(graph_id='global_view'), xl=6),
+                    dbc.Col([
+                        #filtered graph
+                        _create_metric_graph(1, 1, 1),
+                        dbc.Row([
+                            dbc.Col(dbc.Button("Fix points",
+                                        id='fixed_points',
+                                        className="me-1", 
+                                        color='primary',
+                                        outline=True),
+                                    width={"offset": 2}),
+                            dbc.Col(dbc.Button("Reset selection",
+                                        id='refresh_view',
+                                        className="me-1",
+                                        color='primary',
+                                        outline=True))
+                        ],  className="g-0")
+                    ], xl=6)
+            ]),
             
             #graphs-row 2
-            html.Div(children=[
-                 html.Div(children=[\
-                    _create_range_slider(1, 3, 3,\
-                        max_r=data.metrics.total_words_per_doc.max(),\
-                        title='#words / doc')], className="offset-by-six columns"),
-                 #composition graph
-                 html.H4("Composition:"),
-                _create_metric_graph(1, 2, 2),
-                #words/doc graph
-                _create_metric_graph(1, 3, 3)
-            ],  className="row"),
-            
+            dbc.Row([
+                dbc.Col(_create_range_slider(1, 3, 3,\
+                            max_r=data.metrics.total_words_per_doc.max(),
+                            title='#words / doc'), width={"offset": 6}),
+                dbc.Row(html.H4("Composition"), style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Row([
+                    #composition graph
+                    dbc.Col(_create_metric_graph(1, 2, 2), xl=6),
+                    #words/doc graph
+                    dbc.Col( _create_metric_graph(1, 3, 3), xl=6)
+                ])
+            ]),
+            html.P(),
             #config-row 3
-            html.Div(children=[
-                _create_range_slider(1, 4, 4,\
-                    max_r=data.metrics.avg_word_length.max(),
-                    title="avg word lengths"),
-                 _create_range_slider(1, 5, 5,\
-                    max_r=data.metrics.total_num_sent.max(),
-                    title="#sentences / doc")
-            ],  className="row"),
+            dbc.Row([
+                dbc.Col(_create_range_slider(1, 4, 4,\
+                            max_r=data.metrics.avg_word_length.max(),
+                            title="avg word lengths"),style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Col(_create_range_slider(1, 5, 5,\
+                            max_r=data.metrics.total_num_sent.max(),
+                            title="#sentences / doc"))
+            ]),
             #graphs-row 3
-            html.Div(children=[
-                #avg_word_length graph
-                _create_metric_graph(1, 4, 4),
-                #sentences / doc
-                _create_metric_graph(1, 5, 5)
-            ],  className="row"),
+            dbc.Row([
+                    #avg_word_length graph
+                    dbc.Col(_create_metric_graph(1, 4, 4), xl=6),
+                    #sentences / doc graph
+                    dbc.Col(_create_metric_graph(1, 5, 5), xl=6)
+            ]),
+            html.P(),
 
             #config-row 4
-            html.Div(children=[
-                _create_range_slider(1, 6, 6,\
-                    max_r=data.metrics.avg_sent_length.max(), title="avg sent lengths"),
-                 _create_range_slider(1, 7, 7,\
-                    max_r=data.metrics.token_type_ratio.max(), title="token type ratio")
-            ],  className="row"),
+            dbc.Row([
+                dbc.Col(_create_range_slider(1, 6, 6,\
+                            max_r=data.metrics.avg_sent_length.max(),
+                            title="avg sent lengths"), style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Col(_create_range_slider(1, 7, 7,\
+                            max_r=data.metrics.token_type_ratio.max(),
+                            title="token type ratio"))
+            ]),
             #graphs-row 4
-            html.Div(children=[
+            dbc.Row([
                 #avg sent lengths graph
-                _create_metric_graph(1, 6, 6),
+                dbc.Col(_create_metric_graph(1, 6, 6),xl=6),
                 #token type ratio graph
-                _create_metric_graph(1, 7, 7)
-            ],  className="row"),
+                dbc.Col(_create_metric_graph(1, 7, 7), xl=6)
+            ]),
+            html.P(),
 
             #config-row 5
-            html.Div(children=[
-                _create_range_slider(1, 8, 8,\
-                    max_r=data.metrics.symbol_word_ratio.max(), title="symbol-word ratio"),
-                 _create_range_slider(1, 9, 9,\
-                    max_r=data.metrics.num_non_alphabet_words.max(), title="#non-alphabet words")
-            ],  className="row"),
-            #graphs-row 4
-            html.Div(children=[
+            dbc.Row([
+                dbc.Col(_create_range_slider(1, 8, 8,\
+                            max_r=data.metrics.symbol_word_ratio.max(),
+                            title="symbol-word ratio"), style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Col(_create_range_slider(1, 9, 9,\
+                            max_r=data.metrics.num_non_alphabet_words.max(),
+                            title="#non-alphabet words"))
+            ]),
+        
+            #graphs-row 6
+            dbc.Row([
                 #symbol-word ratio graph
-                _create_metric_graph(1, 8, 8),
+                dbc.Col(_create_metric_graph(1, 8, 8),  xl=6),
                 #non-alphabet words graph
-                _create_metric_graph(1, 9, 9)
-            ],  className="row"),
+                dbc.Col(_create_metric_graph(1, 9, 9), xl=6)
+            ]),
             html.Br(),
-            html.Div(html.Button("Export Snapshot", id='export_dataset_s1'), className='offset-by-five columns')
-            
+            dbc.Row(
+                dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s1', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
+                align='center')
         ]),
 
         #Second stage of the pipeline - deeper analysis
-        dcc.Tab(label='Stage II', children=[
+        dbc.Tab(label='Stage II', children=[
+            html.P(),
             #config-row 1
-            html.Div(children=[
-                        _create_range_slider(2, 1, 10,\
-                    max_r=data.metrics.num_stopwords_per_doc.max(), title="#stop words/doc"),
-                        _create_range_slider(2, 2, 11,\
-                    max_r=data.metrics.num_abbreviations_per_doc.max(), title="#abbreviations / doc"),
-            ],  className="row"),
+            dbc.Row([
+                dbc.Col(_create_range_slider(2, 1, 10,\
+                            max_r=data.metrics.num_stopwords_per_doc.max(),
+                            title="#stop words/doc"),style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Col(_create_range_slider(2, 2, 11,\
+                            max_r=data.metrics.num_abbreviations_per_doc.max(),
+                            title="#abbreviations / doc"))
+            ]),
             #graphs-row 1
-            html.Div([
-                html.Div([
-                    _create_metric_graph(2, 1, 10),
-                    _create_metric_graph(2, 2, 11)]),
-                    ],  className="row"),
+            dbc.Row([
+                    #avg_word_length graph
+                    dbc.Col(_create_metric_graph(2, 1, 10),  xl=6),
+                    #sentences / doc graph
+                    dbc.Col(_create_metric_graph(2, 2, 11),  xl=6)
+            ]),
             #config-row 2
-            html.Div(children=[
-                _create_range_slider(2, 3, 12,\
-                    max_r=data.metrics.num_exact_duplicates.max(), title="# of exact duplicates"),
-                _create_range_slider(2, 4, 13,\
-                    max_r=data.metrics.num_near_duplicates.max(), title="# of near duplicates"),
-            ],  className="row"),
+            dbc.Row([
+                dbc.Col(_create_range_slider(2, 3, 12,\
+                            max_r=data.metrics.num_exact_duplicates.max(),
+                            title="# of exact duplicates"), style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Col(_create_range_slider(2, 4, 13,\
+                            max_r=data.metrics.num_near_duplicates.max(),
+                            title="# of near duplicates"))
+            ]),
             #graphs-row 2
-            html.Div(children=[
-                _create_metric_graph(2, 3, 12),
-                _create_metric_graph(2, 4, 13),
-            ],  className="row"),
+            dbc.Row([
+                # of exact duplicates graph
+                dbc.Col(_create_metric_graph(2, 3, 12),  xl=6),
+                # of near duplicates graph
+                dbc.Col(_create_metric_graph(2, 4, 13),  xl=6)
+            ]),
             html.Br(),
-            html.Div(html.Button("Export Snapshot", id='export_dataset_s2'), className='offset-by-five columns')
+            dbc.Row(
+                dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s2', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
+                align='center')
         ]),
 
         #Third stage of the pipeline
-        dcc.Tab(label='Stage III', children=[
+        dbc.Tab(label='Stage III', children=[
+            html.P(),
             #config-row 1
-            html.Div(children=[
-                        html.H4("Classifier Analysis", className='pretty_container six columns'),
-                        html.H4("Topics distributions", className='pretty_container six columns'),
-            ],  className="row"),
+            dbc.Row(children=[
+                        dbc.Col(html.H4("Classifier Analysis"), style={'align': 'left', 'margin-left' : '22px'}),
+                        dbc.Col(html.H4("Topics distributions")),
+            ]),
             #graphs-row 1
-            html.Div([
-                _create_metric_graph(3, 1, 14),
-                _create_metric_graph(3, 2, 15)],
-                className="row"),
+            dbc.Row([
+                #symbol-word ratio graph
+                dbc.Col(_create_metric_graph(3, 1, 14),  xl=6),
+                #non-alphabet words graph
+                dbc.Col(_create_metric_graph(3, 2, 15), xl=6)
+            ]),
             html.Br(),
-            html.Div(html.Button("Export Snapshot", id='export_dataset_s3'), className='offset-by-five columns')
+            dbc.Row(
+                dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s3', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
+                align='center')
+        ]),
+
+        #Forth stage of the pipeline
+        dbc.Tab(label='Stage IV', children=[
+            #config-row 1
+            dbc.Row(children=[
+                        dbc.Col(html.H4("Toxicity"), style={'align': 'left', 'margin-left' : '22px'}),
+                        dbc.Col(html.H4("Bias")),
+            ]),
+            #graphs-row 1
+            dbc.Row([
+                #symbol-word ratio graph
+                dbc.Col(_create_metric_graph(4, 1, 16),  xl=6),
+                #non-alphabet words graph
+                dbc.Col(_create_metric_graph(4, 2, 17), xl=6)
+            ]),
+            html.Br(),
+            dbc.Row(
+                dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s4', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
+                align='center')
         ]),
 
     ]),
