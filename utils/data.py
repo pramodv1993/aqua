@@ -32,7 +32,7 @@ stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics, 
 
 
 def get_bias_info_for_dataset(name):
-    return bias[bias.name==name].values[0,1:]
+    return bias[bias.name==name].values[0,2:]
     
 def filter_points(selected_datasets=None, ids=None):
     filtered = None

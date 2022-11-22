@@ -196,12 +196,14 @@ def update_bias_plot(points):
     for name in datasets:
         fig.add_trace(go.Scatterpolar(
             r=data.get_bias_info_for_dataset(name),
-            theta=data.bias.columns[1:],
+            theta=data.bias.columns[2:],
             fill='toself',
             name=name,
     ))
     fig.update_layout(
+        title='1.0: Biased',
         width=1000,
+        font=dict(size=17),
         polar=dict(
         radialaxis=dict(
             visible=True,
@@ -211,6 +213,19 @@ def update_bias_plot(points):
     )
     globals()['prev_s4_g2'] = fig
  
+
+def update_topic_words_plot(points):
+    if points is None:
+        return get_empty_graph()
+    fig = get_word_cloud(
+    '''It is a long established fact that a reader will be distracted by 
+            the readable content of a page when looking at its layout. The point of using 
+            Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 
+            'Content here, content here', making it look like readable English.Various versions have evolved over the years, 
+            sometimes by accident, sometimes on purpose (injected humour and the like).''')
+    fig.update_layout(title='Words in Topic')
+    return fig
+
 def update_toxicity_plot(points):
     if points is None:
         return get_empty_graph()
@@ -225,7 +240,7 @@ def update_toxicity_plot(points):
       this is this idiot. Bad banished must was must place is moron moron he idiot idiot bad place from bad banished from is idiot must. </p>
 
     """)
-    fig.update_layout(title='Topics')
+    fig.update_layout(title='Toxic Words')
     globals()['prev_s4_g1'] = fig
     
 def get_word_cloud(text):

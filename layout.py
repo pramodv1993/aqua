@@ -263,7 +263,7 @@ def make_layout():
             html.Br(),
             dbc.Row(
                 [
-                    dbc.Col(dcc.Graph(id='word_cloud'), xl=6, width={'offset':3})
+                    dbc.Col(dcc.Graph(id='words_in_topic'), xl=6, width={'offset':3})
                 ]
             ),
             dbc.Row(
@@ -281,9 +281,9 @@ def make_layout():
             ]),
             #graphs-row 1
             dbc.Row([
-                #symbol-word ratio graph
+                #toxicity graph
                 dbc.Col(_create_metric_graph(4, 1, 16),  xl=6),
-                #non-alphabet words graph
+                #bias graph
                 dbc.Col(_create_metric_graph(4, 2, 17), xl=6)
             ]),
             html.Br(),

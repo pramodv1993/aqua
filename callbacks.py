@@ -242,15 +242,13 @@ def define_callbacks(app):
                 plots.prev_s4_g2)
 
     @app.callback(
-        Output("word_cloud", "figure"),
+        Output("words_in_topic", "figure"),
         Input('stage3_g2', 'clickData'),
     )
     def update_words_in_topic(clickData):
-        figs = go.Figure()
+        figs = plots.get_empty_graph()
         if clickData is not None:
-            fig = plots.get_word_cloud("It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).")
-            fig.update_layout(title='Topics')
-            return fig
+            return plots.update_topic_words_plot(clickData)
         return figs
 
     @app.callback(
