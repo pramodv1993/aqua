@@ -1,5 +1,6 @@
 from dash import html, Input, Output, ctx, State
 import dash_bootstrap_components as dbc
+import plotly.graph_objs as go
 import plots
 import layout
 from utils import data
@@ -237,14 +238,18 @@ def define_callbacks(app):
                 #stage IV
                 plots.prev_s4_g2)
 
-    # @app.callback(
-    #     Output("word_cloud", "children"),
-    #     Input('stage3_g2', 'clickData'),
-    #     # State("stage3_g2", "figure")
-    # )
-    # def update_word_cloud(clickData):
-    #     print(clickData)
-    #     return plots.get_empty_graph()
+    @app.callback(
+        Output("word_cloud", "figure"),
+        Input('stage3_g2', 'clickData'),
+        # State("stage3_g2", "figure")
+    )
+    def update_word_cloud(clickData):
+        figs = go.Figure()
+        if clickData is not None:
+            fig = plots.get_word_cloud("t is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).")
+            fig.update_layout(title='topics')
+            return fig
+        return figs
 
     @app.callback(
     Output("my_modal", "is_open"),

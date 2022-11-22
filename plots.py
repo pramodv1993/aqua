@@ -11,6 +11,7 @@ import plotly.express as px
 from plotly import io
 import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
+from plotly_wordcloud import plotly_wordcloud
 
 
 from utils import data
@@ -131,7 +132,6 @@ def update_topics_plot(points):
             for j in range(1, 3):
                 fig.add_trace(
                     go.Bar(
-                        # id=f'topic_{i}_{dataset}',
                         x=[np.random.rand() for _ in range(num_topics)],
                         y=[f'topic_{i}' for i in range(num_topics)],
                         orientation='h',
@@ -211,3 +211,6 @@ def update_bias_plot(points):
     )
     globals()['prev_s4_g2'] = fig
  
+
+def get_word_cloud(text):
+    return plotly_wordcloud(text)

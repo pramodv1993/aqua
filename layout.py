@@ -260,8 +260,12 @@ def make_layout():
                 #non-alphabet words graph
                 dbc.Col(_create_metric_graph(3, 2, 15), xl=6)
             ]),
-            dbc.Row(id='word_cloud'),
             html.Br(),
+            dbc.Row(
+                [
+                    dbc.Col(dcc.Graph(id='word_cloud'), xl=6, width={'offset':3})
+                ]
+            ),
             dbc.Row(
                 dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s3', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
                 align='center')
