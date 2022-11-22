@@ -3,8 +3,7 @@ import dash
 from dash import Dash, dcc, html, Input, Output, State, MATCH, ALL
 import dash_bootstrap_components as dbc
 
-import plots
-from Constants import Datasets
+from utils.Constants import Datasets
 from utils import data
 datasets = [dataset.name for dataset in Datasets]
 
@@ -72,7 +71,7 @@ def create_modal():
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Quality Analysis Pipeline")),
-                dbc.Row(html.Img(src=b64_image('pipeline.jpg'), width=3100)),
+                dbc.Row(html.Img(src=b64_image('utils/pipeline.jpg'), width=3100)),
                 # dbc.ModalBody("This is the content of the modal"),
                 dbc.ModalFooter(
                     dbc.Button(

@@ -1,8 +1,8 @@
 from dash import html, Input, Output, ctx, State
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
-import plots
-import layout
+from utils import plots
+from utils import layout
 from utils import data
 prev_selected_datasets = []
 prev_filtered = None

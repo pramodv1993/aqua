@@ -11,9 +11,7 @@ import plotly.express as px
 from plotly import io
 import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
-from plotly_wordcloud import plotly_wordcloud
-
-
+from utils.plotly_wordcloud import plotly_wordcloud
 from utils import data
 
 paper_bg_color = '#fafafa'
