@@ -67,6 +67,7 @@ def define_callbacks(app):
                 Output('stage3_g1', 'figure'),
                 Output('stage3_g2', 'figure'),
                 
+                Output('stage4_g1', 'figure'),
                 Output('stage4_g2', 'figure')],
                 
                 [Input('global_view', 'selectedData'),
@@ -126,6 +127,7 @@ def define_callbacks(app):
                 plots.update_classifier_plot(points=prev_filtered)
                 plots.update_topics_plot(points=prev_filtered)
                 plots.update_bias_plot(points=prev_filtered)
+                plots.update_toxicity_plot(points=prev_filtered)
 
         elif triggered_id=='global_view' and\
              selected_points and\
@@ -236,18 +238,18 @@ def define_callbacks(app):
                 plots.prev_s3_g1,
                 plots.prev_s3_g2,
                 #stage IV
+                plots.prev_s4_g1,
                 plots.prev_s4_g2)
 
     @app.callback(
         Output("word_cloud", "figure"),
         Input('stage3_g2', 'clickData'),
-        # State("stage3_g2", "figure")
     )
-    def update_word_cloud(clickData):
+    def update_words_in_topic(clickData):
         figs = go.Figure()
         if clickData is not None:
-            fig = plots.get_word_cloud("t is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).")
-            fig.update_layout(title='topics')
+            fig = plots.get_word_cloud("It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).")
+            fig.update_layout(title='Topics')
             return fig
         return figs
 

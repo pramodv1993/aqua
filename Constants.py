@@ -1,6 +1,6 @@
 from enum import Enum
 class Datasets(Enum):
-    WIKI40B = 1
-    BUNDESTAG = 2
-    OPENSUBTITLES = 3
-    ONE_MILLION_POSTS = 4
+    DATASET_1 = 1
+    DATASET_2 = 2
+    DATASET_3 = 3
+    DATASET_4 = 4
