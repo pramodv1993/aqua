@@ -1,4 +1,4 @@
-from dash import html, Input, Output, ctx, State
+from dash import html, Input, Output, ctx, State, dcc
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 from utils import plots
@@ -260,3 +260,18 @@ def define_callbacks(app):
         if n1 or n2:
             return not is_open
         return is_open
+
+    @app.callback(Output('export_dataset_download', 'data'),
+    [   
+        Input('export_dataset_s1', 'n_clicks'),
+        Input('export_dataset_s2', 'n_clicks'),
+        Input('export_dataset_s3', 'n_clicks'),
+        Input('export_dataset_s4', 'n_clicks')],
+    prevent_initial_call=True)
+    def export_dataset(s1_click, s2_click, s3_click, s4_click):
+        triggered_id = ctx.triggered_id
+        op = "stage{}.csv".format(triggered_id[-1])
+        return dcc.send_data_frame(data.metrics.to_csv, op)
+    
+    
+        

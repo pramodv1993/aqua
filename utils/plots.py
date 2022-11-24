@@ -16,9 +16,10 @@ from utils import data
 
 paper_bg_color = '#fafafa'
 plot_bg_color='#e8eaef'
-def get_empty_graph():
+def get_empty_graph(width=None, height=None):
     #empty_graph
-    empty_layout = go.Layout(   paper_bgcolor=paper_bg_color,
+    empty_layout = go.Layout(   
+    paper_bgcolor=paper_bg_color,
     plot_bgcolor=plot_bg_color,
     xaxis = dict(showticklabels=True, showgrid=True, zeroline = True),
     yaxis = dict(showticklabels = True, showgrid=True, zeroline = True))
@@ -227,19 +228,36 @@ def update_topic_words_plot(points):
 def update_toxicity_plot(points):
     if points is None:
         return get_empty_graph()
-    fig = get_word_cloud("""
-    <p>Lorem ipsum dolor sit amet. He freaking place a this moron the idiot moron. 
-    The moron this is freaking banished is banished moron be very place. 
-    A must hell the stupid must be moron idiot. 
-    </p><p>Is banished banished he moron moron be from place is must from be very stupid he must moron was place hell.
-     Is stupid this he from place was this freaking is place stupid! </p><p>He stupid place he moron must is this this was moron moron was stupid moron. 
-     Bad stupid moron be hell idiot he from place a idiot this. A this moron was moron place be stupid very is hell moron bad stupid must a banished very!
-      </p><p>A very this a this place he hell moron be very place. He place from he this freaking he idiot freaking he from stupid the very idiot bad banished 
-      this is this idiot. Bad banished must was must place is moron moron he idiot idiot bad place from bad banished from is idiot must. </p>
-
-    """)
-    fig.update_layout(title='Toxic Words')
+    toxic_words = data.get_toxic_words_for_points(points)
+    fig = go.Figure(data=[go.Table(
+            columnorder = [1,2],
+            columnwidth = [40,40],
+            header = dict(
+                values = [['<b>Word</b>'],
+                            ['<b>Confidence Score</b>']],
+                line_color='darkslategray',
+                fill_color='grey',
+                align=['center','center'],
+                font=dict(color='white', size=22),
+                height=40
+            ),
+            cells=dict(
+                values=[toxic_words.word, toxic_words.score],
+                line_color='darkslategray',
+                fill=dict(color=['white', 'white']),
+                align=['center', 'center'],
+                font_size=20,
+                height=40)
+                )
+            ])
+    fig.update_layout(
+             width=900,
+    height=1500,
+        autosize=True)
     globals()['prev_s4_g1'] = fig
     
 def get_word_cloud(text):
     return plotly_wordcloud(text)
+
+
+#@TODO download corpus functionality + table view of corpus

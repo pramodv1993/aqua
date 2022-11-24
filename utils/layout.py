@@ -88,7 +88,9 @@ def create_modal():
 
 def make_layout():
     return html.Div(children=[
+    dcc.Download(id="export_dataset_download"),
     dbc.Row(dbc.Container([
+        html.P(),
         dbc.Row(dbc.Col(html.H2('AQuA'))),
         html.Hr(className="my-1"),
         dbc.Row([
@@ -199,7 +201,10 @@ def make_layout():
             ]),
             html.Br(),
             dbc.Row(
-                dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s1', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
+                dbc.Col([
+                    dbc.Button("Export Snapshot", color='primary',
+                                 outline=True, id='export_dataset_s1')
+                    ], width={"offset":5}, xl=5),
                 align='center')
         ]),
 
@@ -240,7 +245,10 @@ def make_layout():
             ]),
             html.Br(),
             dbc.Row(
-                dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s2', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
+                dbc.Col([
+                    dbc.Button("Export Snapshot", color='primary',
+                                 outline=True, id='export_dataset_s2')
+                    ], width={"offset":5}, xl=5),
                 align='center')
         ]),
 
@@ -266,7 +274,10 @@ def make_layout():
                 ]
             ),
             dbc.Row(
-                dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s3', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
+                dbc.Col([
+                    dbc.Button("Export Snapshot", color='primary',
+                                 outline=True, id='export_dataset_s3')
+                    ], width={"offset":5}, xl=5),
                 align='center')
         ]),
 
@@ -287,7 +298,10 @@ def make_layout():
             ]),
             html.Br(),
             dbc.Row(
-                dbc.Col([dbc.Button("Export Snapshot", id='export_dataset_s4', outline=True, color='primary', size="lg")], width={"offset":5}, xl=5),
+                dbc.Col([
+                    dbc.Button("Export Snapshot", color='primary',
+                                 outline=True, id='export_dataset_s4'),
+                    ], width={"offset":5}, xl=5),
                 align='center')
         ]),
 

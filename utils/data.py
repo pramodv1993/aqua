@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from s3path import S3Path
 import pandas as pd
+import numpy as np
 
 
 dataset = pd.read_csv('datasets/dataset.csv')
 metrics = pd.read_csv('datasets/metrics.csv')
 composition = pd.read_csv('datasets/global_size.csv')
 bias = pd.read_csv('datasets/bias.csv')
+toxic_words = pd.read_csv('datasets/toxic_words.csv')
 names = dataset.name.unique()
 #metrics
 stage_1_metrics = {
@@ -33,7 +35,15 @@ stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics, 
 
 def get_bias_info_for_dataset(name):
     return bias[bias.name==name].values[0,2:]
-    
+
+def get_toxic_words_for_points(points):
+    if points is None:
+        return []
+    words = toxic_words.sample(np.random.randint(len(toxic_words)))
+    words.sort_values(by='score', ascending=False, inplace=True)
+    return words
+
+
 def filter_points(selected_datasets=None, ids=None):
     filtered = None
     if selected_datasets:
