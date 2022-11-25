@@ -89,6 +89,7 @@ def create_modal():
 def make_layout():
     return html.Div(children=[
     dcc.Download(id="export_dataset_download"),
+    dcc.ConfirmDialog(id='export_dialog'),
     dbc.Row(dbc.Container([
         html.P(),
         dbc.Row(dbc.Col(html.H2('AQuA'))),

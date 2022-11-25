@@ -10,6 +10,8 @@ composition = pd.read_csv('datasets/global_size.csv')
 bias = pd.read_csv('datasets/bias.csv')
 toxic_words = pd.read_csv('datasets/toxic_words.csv')
 names = dataset.name.unique()
+final_points = dataset.id
+metrics_vs_bounds = {metric: (None, None) for metric in metrics.columns[:-3]}
 #metrics
 stage_1_metrics = {
                     2: 'composition',
@@ -32,6 +34,9 @@ stage_4_metrics = {1: 'toxicity',
                     2: 'bias'}
 stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics, 4: stage_4_metrics}
 
+def reset_metric_bounds():
+    global metrics_vs_bounds
+    metrics_vs_bounds = {metric: (None, None) for metric in metrics.columns[:-3]}
 
 def get_bias_info_for_dataset(name):
     return bias[bias.name==name].values[0,2:]
@@ -43,6 +48,15 @@ def get_toxic_words_for_points(points):
     words.sort_values(by='score', ascending=False, inplace=True)
     return words
 
+def apply_metric_filters():
+    global metrics_vs_bounds
+    final_res = metrics
+    for metric, (lb, ub) in metrics_vs_bounds.items():
+        if lb:
+            final_res = final_res[final_res[metric]>=lb]
+        if ub:
+             final_res = final_res[final_res[metric]<=ub]
+    return final_res.id
 
 def filter_points(selected_datasets=None, ids=None):
     filtered = None

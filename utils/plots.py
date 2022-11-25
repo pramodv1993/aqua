@@ -13,6 +13,7 @@ import plotly.figure_factory as ff
 from plotly.subplots import make_subplots
 from utils.plotly_wordcloud import plotly_wordcloud
 from utils import data
+from utils import callbacks
 
 paper_bg_color = '#fafafa'
 plot_bg_color='#e8eaef'
@@ -165,10 +166,15 @@ def get_dist_plot(points, lb=None, ub=None, metric=None):
         return get_empty_graph()
     metrics_for_points = data.get_metrics_for_points(points.id)
     fig = px.histogram(metrics_for_points, x=metric, marginal='box', color='name', color_discrete_sequence=px.colors.qualitative.Vivid)
-    if lb:
+    prev_lb, prev_ub = data.metrics_vs_bounds[metric]
+    if lb: 
         fig.add_vline(x=lb, line_width=2, line_dash='dash')
+        #persist bound for metric for final filtering
+        data.metrics_vs_bounds[metric] = (lb, prev_ub)
+        prev_lb = lb
     if ub:
         fig.add_vline(x=ub, line_width=2, line_dash='dash')
+        data.metrics_vs_bounds[metric] = (prev_lb, ub)
     fig.update_layout(    
     paper_bgcolor=paper_bg_color,
     plot_bgcolor=plot_bg_color)
@@ -259,5 +265,4 @@ def update_toxicity_plot(points):
 def get_word_cloud(text):
     return plotly_wordcloud(text)
 
-
-#@TODO download corpus functionality + table view of corpus
+#@TODO table view of corpus

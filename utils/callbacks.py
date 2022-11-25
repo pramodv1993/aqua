@@ -141,6 +141,7 @@ def define_callbacks(app):
                 
         elif triggered_id=="refresh_view":
             plots.reset_graphs(stage_nums=[1,2,3])
+            data.reset_metric_bounds()
         #stage I
         elif triggered_id=="stage1_g3_range":
             lb, ub = s1_g3_range
@@ -230,10 +231,10 @@ def define_callbacks(app):
                 plots.prev_s1_g8, s1_g8_selected_range,
                 plots.prev_s1_g9, s1_g9_selected_range,
                 #stage II
-                plots.prev_s2_g1, s1_g6_selected_range,
-                plots.prev_s2_g2, s1_g7_selected_range,
-                plots.prev_s2_g3, s1_g8_selected_range,
-                plots.prev_s2_g4, s1_g9_selected_range,
+                plots.prev_s2_g1, s2_g1_selected_range,
+                plots.prev_s2_g2, s2_g2_selected_range,
+                plots.prev_s2_g3, s2_g3_selected_range,
+                plots.prev_s2_g4, s2_g4_selected_range,
                 #stage III
                 plots.prev_s3_g1,
                 plots.prev_s3_g2,
@@ -261,7 +262,9 @@ def define_callbacks(app):
             return not is_open
         return is_open
 
-    @app.callback(Output('export_dataset_download', 'data'),
+    @app.callback([Output('export_dataset_download', 'data'),
+                   Output('export_dialog', 'displayed'),
+                   Output('export_dialog', 'message')],
     [   
         Input('export_dataset_s1', 'n_clicks'),
         Input('export_dataset_s2', 'n_clicks'),
@@ -269,9 +272,13 @@ def define_callbacks(app):
         Input('export_dataset_s4', 'n_clicks')],
     prevent_initial_call=True)
     def export_dataset(s1_click, s2_click, s3_click, s4_click):
+        final_snapshot = data.apply_metric_filters()
         triggered_id = ctx.triggered_id
-        op = "stage{}.csv".format(triggered_id[-1])
-        return dcc.send_data_frame(data.metrics.to_csv, op)
+        op = "snapshot_stage{}.csv".format(triggered_id[-1])
+        return (dcc.send_data_frame(final_snapshot.to_csv, op),
+                True,
+                'Exporting as file: {}?'.format(op)
+        )
     
     
         
