@@ -21,7 +21,7 @@ def _create_range_slider(stage_num,\
                     html.Br(),
                     html.H4(title),
                     dbc.Label("Select Thresholds:"), html.Br(),\
-                    dcc.RangeSlider(0, max_r, id=f"stage{stage_num}_g{graph_num}_range"),  html.Br(),
+                    dcc.RangeSlider(-1, max_r, id=f"stage{stage_num}_g{graph_num}_range"),  html.Br(),
                     html.Div(id=f"stage{stage_num}_g{graph_num}_selected_range")
                     ])
 
@@ -96,12 +96,12 @@ def make_layout():
         html.Hr(className="my-1"),
         dbc.Row([
             dbc.Col(html.P([html.B('A Qu'), 'ality ', html.B('A'), 'ssistance framework for introspecting and curating your text corpora..'])),
-            dbc.Col(create_modal(), md=4)
+            # dbc.Col(create_modal(), md=4)
         ]),
     ]), style={'align': 'left', 'margin-left' : '22px'}),
     dbc.Tabs([
         #First stage of the pipeline - basic analysis
-        dbc.Tab(label='Stage I', children=[
+        dbc.Tab(tab_id="stage1_tab", label='Stage I', children=[
             #config-row 1
             dbc.Row(children=[
                         dbc.Col(_create_global_dataselector(datasets), md=4),
@@ -136,7 +136,7 @@ def make_layout():
             #graphs-row 2
             dbc.Row([
                 dbc.Col(_create_range_slider(1, 3, 3,\
-                            max_r=data.metrics.total_words_per_doc.max(),
+                            max_r=data.metrics.total_words_per_doc.max()+1,
                             title='#words / doc'), width={"offset": 6}),
                 dbc.Row(html.H4("Composition"), style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Row([
@@ -150,10 +150,10 @@ def make_layout():
             #config-row 3
             dbc.Row([
                 dbc.Col(_create_range_slider(1, 4, 4,\
-                            max_r=data.metrics.avg_word_length.max(),
+                            max_r=data.metrics.avg_word_length.max()+1,
                             title="avg word lengths"),style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Col(_create_range_slider(1, 5, 5,\
-                            max_r=data.metrics.total_num_sent.max(),
+                            max_r=data.metrics.total_num_sent.max()+1,
                             title="#sentences / doc"))
             ]),
             #graphs-row 3
@@ -168,10 +168,10 @@ def make_layout():
             #config-row 4
             dbc.Row([
                 dbc.Col(_create_range_slider(1, 6, 6,\
-                            max_r=data.metrics.avg_sent_length.max(),
+                            max_r=data.metrics.avg_sent_length.max()+1,
                             title="avg sent lengths"), style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Col(_create_range_slider(1, 7, 7,\
-                            max_r=data.metrics.token_type_ratio.max(),
+                            max_r=data.metrics.token_type_ratio.max()+1,
                             title="token type ratio"))
             ]),
             #graphs-row 4
@@ -186,10 +186,10 @@ def make_layout():
             #config-row 5
             dbc.Row([
                 dbc.Col(_create_range_slider(1, 8, 8,\
-                            max_r=data.metrics.symbol_word_ratio.max(),
+                            max_r=data.metrics.symbol_word_ratio.max()+1,
                             title="symbol-word ratio"), style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Col(_create_range_slider(1, 9, 9,\
-                            max_r=data.metrics.num_non_alphabet_words.max(),
+                            max_r=data.metrics.num_non_alphabet_words.max()+1,
                             title="#non-alphabet words"))
             ]),
         
@@ -204,21 +204,26 @@ def make_layout():
             dbc.Row(
                 dbc.Col([
                     dbc.Button("Export Snapshot", color='primary',
-                                 outline=True, id='export_dataset_s1')
+                                 outline=True, id='export_dataset_s1'),
+                    dbc.Button("Trigger StageII", color='primary',
+                                 outline=True, id='stage2_trigger'),
+                    dcc.ConfirmDialog(
+                            message="Please navigate to StageII tab",
+                            id="stage2_alert"),
                     ], width={"offset":5}, xl=5),
                 align='center')
         ]),
 
         #Second stage of the pipeline - deeper analysis
-        dbc.Tab(label='Stage II', children=[
+        dbc.Tab(tab_id='stage2_tab', label='Stage II', children=[
             html.P(),
             #config-row 1
             dbc.Row([
                 dbc.Col(_create_range_slider(2, 1, 10,\
-                            max_r=data.metrics.num_stopwords_per_doc.max(),
+                            max_r=data.metrics.num_stopwords_per_doc.max()+1,
                             title="#stop words/doc"),style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Col(_create_range_slider(2, 2, 11,\
-                            max_r=data.metrics.num_abbreviations_per_doc.max(),
+                            max_r=data.metrics.num_abbreviations_per_doc.max()+1,
                             title="#abbreviations / doc"))
             ]),
             #graphs-row 1
@@ -231,10 +236,10 @@ def make_layout():
             #config-row 2
             dbc.Row([
                 dbc.Col(_create_range_slider(2, 3, 12,\
-                            max_r=data.metrics.num_exact_duplicates.max(),
+                            max_r=data.metrics.num_exact_duplicates.max()+1,
                             title="# of exact duplicates"), style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Col(_create_range_slider(2, 4, 13,\
-                            max_r=data.metrics.num_near_duplicates.max(),
+                            max_r=data.metrics.num_near_duplicates.max()+1,
                             title="# of near duplicates"))
             ]),
             #graphs-row 2
@@ -248,13 +253,18 @@ def make_layout():
             dbc.Row(
                 dbc.Col([
                     dbc.Button("Export Snapshot", color='primary',
-                                 outline=True, id='export_dataset_s2')
+                                 outline=True, id='export_dataset_s2'),
+                    dbc.Button("Trigger StageIII", color='primary',
+                                 outline=True, id='stage3_trigger'),
+                    dcc.ConfirmDialog(
+                            message="Please navigate to StageIII tab",
+                            id="stage3_alert"),
                     ], width={"offset":5}, xl=5),
                 align='center')
         ]),
 
         #Third stage of the pipeline
-        dbc.Tab(label='Stage III', children=[
+        dbc.Tab(tab_id='stage3_tab', label='Stage III', children=[
             html.P(),
             #config-row 1
             dbc.Row(children=[
@@ -277,13 +287,19 @@ def make_layout():
             dbc.Row(
                 dbc.Col([
                     dbc.Button("Export Snapshot", color='primary',
-                                 outline=True, id='export_dataset_s3')
+                                 outline=True, id='export_dataset_s3'),
+                    dbc.Button("Trigger StageIV", color='primary',
+                                 outline=True, id='stage4_trigger'),
+                    dcc.ConfirmDialog(
+                            message="Please navigate to StageIV tab",
+                            id="stage4_alert"),
+
                     ], width={"offset":5}, xl=5),
                 align='center')
         ]),
 
         #Forth stage of the pipeline
-        dbc.Tab(label='Stage IV', children=[
+        dbc.Tab(tab_id='stage4_tab', label='Stage IV', children=[
             html.P(),
             #config-row 1
             dbc.Row(children=[
@@ -306,5 +322,7 @@ def make_layout():
                 align='center')
         ]),
 
-    ]),
+    ], 
+    active_tab="stage1_tab",
+    id='tabs'),
 ])

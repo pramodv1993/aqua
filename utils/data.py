@@ -48,15 +48,15 @@ def get_toxic_words_for_points(points):
     words.sort_values(by='score', ascending=False, inplace=True)
     return words
 
-def apply_metric_filters():
+def apply_metric_filters(df=None):
     global metrics_vs_bounds
-    final_res = metrics
+    print(metrics_vs_bounds)
     for metric, (lb, ub) in metrics_vs_bounds.items():
         if lb:
-            final_res = final_res[final_res[metric]>=lb]
+            df = df[df[metric]>=lb]
         if ub:
-             final_res = final_res[final_res[metric]<=ub]
-    return final_res.id
+             df = df[df[metric]<=ub]
+    return df
 
 def filter_points(selected_datasets=None, ids=None):
     filtered = None
@@ -70,6 +70,8 @@ def filter_points(selected_datasets=None, ids=None):
     return filtered
 
 def get_metrics_for_points(ids):
+    if ids is None or not len(ids):
+        return None
     return metrics[metrics.id.isin(ids)]
 
 def update_filtered_points(prev_filtered, new_filtered):

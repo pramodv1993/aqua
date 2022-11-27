@@ -17,6 +17,11 @@ from utils import callbacks
 
 paper_bg_color = '#fafafa'
 plot_bg_color='#e8eaef'
+color_discrete_map={
+            'DATASET_1':'rgb(229, 134, 6)',
+            'DATASET_2':'rgb(93, 105, 177)',
+            'DATASET_3':'rgb(82, 188, 163)',
+             'DATASET_4':'rgb(153, 201, 69)'}
 def get_empty_graph(width=None, height=None):
     #empty_graph
     empty_layout = go.Layout(   
@@ -69,10 +74,12 @@ def get_scatter_plot(points):
     if points is None:
         return get_empty_graph()
     fig = px.scatter(points, x='pc1', y='pc2', color='name', hover_data=['id'],\
-         color_discrete_sequence=px.colors.qualitative.Vivid)
+         color_discrete_map=color_discrete_map)
     fig.update_layout(    
     paper_bgcolor=paper_bg_color,
     plot_bgcolor=plot_bg_color)
+    fig.update_xaxes(range=[-7,7])
+    fig.update_yaxes(range=[-7,7])
     return fig
 
 def update_classifier_plot(points):
@@ -207,7 +214,7 @@ def update_bias_plot(points):
     ))
     fig.update_layout(
         title='1.0: Biased',
-        width=1000,
+        width=10000,
         font=dict(size=17),
         polar=dict(
         radialaxis=dict(
@@ -239,12 +246,12 @@ def update_toxicity_plot(points):
             columnorder = [1,2],
             columnwidth = [40,40],
             header = dict(
-                values = [['<b>Word</b>'],
-                            ['<b>Confidence Score</b>']],
-                line_color='darkslategray',
+                values = [['Words'],
+                            ['ConfidenceScores']],
+                # line_color='darkslategray',
                 fill_color='grey',
                 align=['center','center'],
-                font=dict(color='white', size=22),
+                font=dict(color='white', size=25),
                 height=40
             ),
             cells=dict(
@@ -258,8 +265,7 @@ def update_toxicity_plot(points):
             ])
     fig.update_layout(
              width=900,
-    height=1500,
-        autosize=True)
+    height=1500)
     globals()['prev_s4_g1'] = fig
     
 def get_word_cloud(text):
