@@ -301,10 +301,14 @@ def define_callbacks(app):
         Input('export_dataset_s4', 'n_clicks')],
     prevent_initial_call=True)
     def export_dataset(s1_click, s2_click, s3_click, s4_click):
-        final_snapshot = data.apply_metric_filters()
+        global prev_filtered, prev_s2_filtered, prev_s3_filtered
         triggered_id = ctx.triggered_id
-        op = "snapshot_stage{}.csv".format(triggered_id[-1])
-        return (dcc.send_data_frame(final_snapshot.to_csv, op),
+        if triggered_id=='export_dataset_s1':
+            snapshot = prev_filtered
+        else:
+            snapshot = prev_s2_filtered
+        op = "stage{}.csv".format(triggered_id[-1])
+        return (dcc.send_data_frame(snapshot.to_csv, op),
                 True,
                 'Exporting as file: {}?'.format(op)
         )
