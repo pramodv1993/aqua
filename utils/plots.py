@@ -185,7 +185,8 @@ def get_dist_plot(points, lb=None, ub=None, metric=None):
     if ub:
         fig.add_vline(x=ub, line_width=2, line_dash='dash')
         data.metrics_vs_bounds[metric] = (prev_lb, ub)
-    fig.update_layout(    
+    fig.update_layout(
+    font=dict(size=20),   
     paper_bgcolor=paper_bg_color,
     plot_bgcolor=plot_bg_color)
     return fig

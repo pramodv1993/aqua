@@ -19,8 +19,8 @@ def _create_range_slider(stage_num,\
                 style= div_style,
                 children=[
                     html.Br(),
-                    html.H4(title),
-                    dbc.Label("Select Thresholds:"), html.Br(),\
+                    html.H2(title),
+                    html.H4("Select Thresholds:"), html.Br(),\
                     dcc.RangeSlider(-1, max_r, id=f"stage{stage_num}_g{graph_num}_range"),  html.Br(),
                     html.Div(id=f"stage{stage_num}_g{graph_num}_selected_range")
                     ])
@@ -88,6 +88,7 @@ def create_modal():
 
 def make_layout():
     return html.Div(children=[
+    html.Div(id='hidden_div', style={'display': None}),
     dcc.Download(id="export_dataset_download"),
     dcc.ConfirmDialog(id='export_dialog'),
     dbc.Row(dbc.Container([
@@ -108,8 +109,8 @@ def make_layout():
             ]),
             html.P(),
             dbc.Row([
-                dbc.Col(html.H4("Semantic Overview"), style={'align': 'left', 'margin-left' : '22px'}),
-                dbc.Col(html.H4("Filtered points"))
+                dbc.Col(html.H2("Semantic Overview"), style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Col(html.H2("Filtered points"))
             ]),
             #graphs-row 1
             dbc.Row([
@@ -138,7 +139,7 @@ def make_layout():
                 dbc.Col(_create_range_slider(1, 3, 3,\
                             max_r=data.metrics.total_words_per_doc.max()+1,
                             title='#words / doc'), width={"offset": 6}),
-                dbc.Row(html.H4("Composition"), style={'align': 'left', 'margin-left' : '22px'}),
+                dbc.Row(html.H2("Composition"), style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Row([
                     #composition graph
                     dbc.Col(_create_metric_graph(1, 2, 2), xl=6),
@@ -151,7 +152,7 @@ def make_layout():
             dbc.Row([
                 dbc.Col(_create_range_slider(1, 4, 4,\
                             max_r=data.metrics.avg_word_length.max()+1,
-                            title="avg word lengths"),style={'align': 'left', 'margin-left' : '22px'}),
+                            title="Avg Word Lengths"),style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Col(_create_range_slider(1, 5, 5,\
                             max_r=data.metrics.total_num_sent.max()+1,
                             title="#sentences / doc"))
@@ -169,10 +170,10 @@ def make_layout():
             dbc.Row([
                 dbc.Col(_create_range_slider(1, 6, 6,\
                             max_r=data.metrics.avg_sent_length.max()+1,
-                            title="avg sent lengths"), style={'align': 'left', 'margin-left' : '22px'}),
+                            title="Avg Sent Lengths"), style={'align': 'left', 'margin-left' : '22px'}),
                 dbc.Col(_create_range_slider(1, 7, 7,\
                             max_r=data.metrics.token_type_ratio.max()+1,
-                            title="token type ratio"))
+                            title="Token Type Ratio"))
             ]),
             #graphs-row 4
             dbc.Row([
@@ -268,8 +269,8 @@ def make_layout():
             html.P(),
             #config-row 1
             dbc.Row(children=[
-                        dbc.Col(html.H4("Classifier Analysis"), style={'align': 'left', 'margin-left' : '22px'}),
-                        dbc.Col(html.H4("Topics distributions")),
+                        dbc.Col(html.H2("Classifier Analysis"), style={'align': 'left', 'margin-left' : '22px'}),
+                        dbc.Col(html.H2("Topics distributions")),
             ]),
             #graphs-row 1
             dbc.Row([
@@ -303,8 +304,8 @@ def make_layout():
             html.P(),
             #config-row 1
             dbc.Row(children=[
-                        dbc.Col(html.H4("Toxicity"), style={'align': 'left', 'margin-left' : '22px'}),
-                        dbc.Col(html.H4("Bias")),
+                        dbc.Col(html.H2("Toxicity"), style={'align': 'left', 'margin-left' : '22px'}),
+                        dbc.Col(html.H2("Bias")),
             ]),
             #graphs-row 1
             dbc.Row([

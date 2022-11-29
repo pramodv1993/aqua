@@ -1,6 +1,7 @@
 from dash import html, Input, Output, ctx, State, dcc
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
+import pandas as pd
 from utils import plots
 from utils import layout
 from utils import data
@@ -11,6 +12,18 @@ prev_s3_filtered = None
 
 
 def define_callbacks(app):
+    @app.callback(
+    Output('dataset_selector', 'value'),
+    Input('dimred', 'value'))
+    def update_dataset(value):
+        if value:
+            data.change_dataset(value)
+        plots.reset_graphs(stage_nums=[1,2,3])
+        plots.prev_s1_g1 = plots.get_empty_graph()
+        data.reset_metric_bounds()
+        return (None, [])
+
+    
     @app.callback(
         Output('global_view', 'figure'),
         [Input('dataset_selector', "value")]

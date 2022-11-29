@@ -34,6 +34,11 @@ stage_4_metrics = {1: 'toxicity',
                     2: 'bias'}
 stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics, 4: stage_4_metrics}
 
+
+def change_dataset(name):
+    global dataset
+    dataset = pd.read_csv(f'datasets/{name}_dataset.csv')
+    
 def reset_metric_bounds():
     global metrics_vs_bounds
     metrics_vs_bounds = {metric: (None, None) for metric in metrics.columns[:-3]}
