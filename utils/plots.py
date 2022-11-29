@@ -1,3 +1,4 @@
+import random
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -103,7 +104,7 @@ def update_classifier_plot(points):
     Z = trees.predict(np.c_[xx.ravel(), yy.ravel()])
     Z = Z.reshape(xx.shape)
     
-    color_scale = 'teal'
+    color_scale = 'aggrnyl'
     trace1 = go.Heatmap(x=xx[0], y=y_, z=Z,
                 colorscale=color_scale,
                 showscale=True)
@@ -111,10 +112,10 @@ def update_classifier_plot(points):
     trace2 = go.Scatter(x=X[:, 0], y=X[:, 1],
                         mode='markers',
                         showlegend=False,
-                        marker=dict(size=10,
+                        marker=dict(size=7,
                                     color=y, 
                                     colorscale=color_scale,
-                                    line=dict(color='black', width=1))
+                                    line=dict(color='black', width=.6))
                         )
     layout= go.Layout(
             autosize= True,
@@ -137,12 +138,14 @@ def update_topics_plot(points):
     for i in range(1, num_rows+1):
         try:
             for j in range(1, 3):
+                name =next(dataset)
                 fig.add_trace(
                     go.Bar(
                         x=[np.random.rand() for _ in range(num_topics)],
                         y=[f'topic_{i}' for i in range(num_topics)],
                         orientation='h',
-                        name=next(dataset)
+                        name=name,
+                        marker_color=color_discrete_map[name]
                         ),
                 row=i, col=j
                 )
@@ -229,13 +232,41 @@ def update_bias_plot(points):
 def update_topic_words_plot(points):
     if points is None:
         return get_empty_graph()
-    fig = get_word_cloud(
+    print(points)
+    import random
+    fig, words = get_word_cloud(
     '''It is a long established fact that a reader will be distracted by 
             the readable content of a page when looking at its layout. The point of using 
             Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 
             'Content here, content here', making it look like readable English.Various versions have evolved over the years, 
             sometimes by accident, sometimes on purpose (injected humour and the like).''')
-    fig.update_layout(title='Words in Topic')
+    # fig.update_layout(title='Words in Topic')
+    words = random.sample(words, np.random.randint(len(words)))
+    print(words)
+    fig = go.Figure(data=[go.Table(
+            # columnorder = [1,2],
+            columnwidth = [40],
+            header = dict(
+                values = [['Words']],
+                line_color='darkslategray',
+                fill_color='grey',
+                align=['center'],
+                font=dict(color='white', size=25),
+                height=40
+            ),
+            cells=dict(
+                values=[words],
+                line_color='darkslategray',
+                fill=dict(color=['white']),
+                align=['center'],
+                font_size=20,
+                height=40)
+                )
+            ])
+    fig.update_layout(
+        title='Words in Topic',
+             width=600,
+    height=1500)
     return fig
 
 def update_toxicity_plot(points):

@@ -313,22 +313,21 @@ def define_callbacks(app):
                 'Exporting as file: {}?'.format(op)
         )
     
-#switch to next tab once the button is pressed
-   # @app.callback(Output('tabs', 'active_tab'),
-    # [Input('stage2_trigger', 'n_clicks'),
-    # Input('stage3_trigger', 'n_clicks'),
-    # Input('stage4_trigger', 'n_clicks')])
-
-    # def switch_tab(n_click1, n_click2, n_click3):
-    #     triggered_id = ctx.triggered_id
-    #     if triggered_id=='stage2_trigger':
-    #         return 'stage2_tab'
-    #     elif triggered_id=='stage3_trigger':
-    #         return 'stage3_tab'
-    #     elif triggered_id=='stage4_trigger':
-    #         return 'stage4_tab'
-    #     else:
-    #         return 'stage1_tab'
+# switch to next tab once the button is pressed
+    @app.callback(Output('tabs', 'active_tab'),
+        [Input('stage2_trigger', 'n_clicks'),
+            Input('stage3_trigger', 'n_clicks'),
+            Input('stage4_trigger', 'n_clicks')])
+    def switch_tab(n_click1, n_click2, n_click3):
+        triggered_id = ctx.triggered_id
+        if triggered_id=='stage2_trigger':
+            return 'stage2_tab'
+        elif triggered_id=='stage3_trigger':
+            return 'stage3_tab'
+        elif triggered_id=='stage4_trigger':
+            return 'stage4_tab'
+        else:
+            return 'stage1_tab'
 
 #pipeline image button
 #     @app.callback(

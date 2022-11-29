@@ -50,4 +50,4 @@ def plotly_wordcloud(text):
     
     fig = go.Figure(data=[trace], layout=layout)
     
-    return fig
+    return fig, word_list
