@@ -18,7 +18,7 @@ def define_callbacks(app):
     def update_dataset(value):
         if value:
             data.change_dataset(value)
-        plots.reset_graphs(stage_nums=[1,2,3])
+        plots.reset_graphs(stage_nums=[1,2,3,4])
         plots.prev_s1_g1 = plots.get_empty_graph()
         data.reset_metric_bounds()
         return (None, [])
@@ -94,7 +94,7 @@ def define_callbacks(app):
         s1_g8_range=None,\
         s1_g9_range=None,
         ):
-        global prev_selected_datasets, prev_filtered
+        global prev_selected_datasets, prev_filtered, prev_s2_filtered, prev_s3_filtered
         triggered_id = ctx.triggered_id
         cnt_points = None
         filtered = None
@@ -124,7 +124,10 @@ def define_callbacks(app):
                 plots.update_dist_plots_for_stage(points=filtered, stage_nums=[1])
                 
         elif triggered_id=="refresh_view":
-            plots.reset_graphs(stage_nums=[1,2,3])
+            plots.reset_graphs(stage_nums=[1,2,3,4])
+            prev_filtered = None
+            prev_s2_filtered = None
+            prev_s3_filtered = None
             data.reset_metric_bounds()
         #stage I
         elif triggered_id=="stage1_g3_range":

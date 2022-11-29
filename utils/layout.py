@@ -105,6 +105,11 @@ def make_layout():
         dbc.Tab(tab_id="stage1_tab", label='Stage I', children=[
             #config-row 1
             dbc.Row(children=[
+                        dbc.Row(
+                            dbc.Col("""This stage gives on overview of the datasets. This is done by first visualizing the documents of the datasets using their pre-trained embeddings. 
+                            Please choose the pre-trained model and the respective dimensionality reduction technique.""",
+                            style={'align': 'left', 'margin-left' : '22px', 'margin-top':'22px'})
+                        ),
                         dbc.Col(_create_global_dataselector(datasets), md=4),
             ]),
             html.P(),
