@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 from s3path import S3Path
 import pandas as pd
+import numpy as np
 
 
 dataset = pd.read_csv('datasets/dataset.csv')
 metrics = pd.read_csv('datasets/metrics.csv')
 composition = pd.read_csv('datasets/global_size.csv')
+bias = pd.read_csv('datasets/bias.csv')
+toxic_words = pd.read_csv('datasets/toxic_words.csv')
 names = dataset.name.unique()
+final_points = dataset.id
+metrics_vs_bounds = {metric: (None, None) for metric in metrics.columns[:-3]}
 #metrics
 stage_1_metrics = {
                     2: 'composition',
@@ -24,9 +29,39 @@ stage_2_metrics = {1: 'num_stopwords_per_doc',
 
 stage_3_metrics = {1: 'topic_distribution',
                     2: 'classifier_scores'}
-stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics}
+
+stage_4_metrics = {1: 'toxicity',
+                    2: 'bias'}
+stage_vs_metrics = {1: stage_1_metrics, 2: stage_2_metrics, 3: stage_3_metrics, 4: stage_4_metrics}
 
 
+def change_dataset(name):
+    global dataset
+    dataset = pd.read_csv(f'datasets/{name}_dataset.csv')
+    
+def reset_metric_bounds():
+    global metrics_vs_bounds
+    metrics_vs_bounds = {metric: (None, None) for metric in metrics.columns[:-3]}
+
+def get_bias_info_for_dataset(name):
+    return bias[bias.name==name].values[0,2:]
+
+def get_toxic_words_for_points(points):
+    if points is None:
+        return []
+    words = toxic_words.sample(np.random.randint(len(toxic_words)))
+    words.sort_values(by='score', ascending=False, inplace=True)
+    return words
+
+def apply_metric_filters(df=None):
+    global metrics_vs_bounds
+    print(metrics_vs_bounds)
+    for metric, (lb, ub) in metrics_vs_bounds.items():
+        if lb:
+            df = df[df[metric]>=lb]
+        if ub:
+             df = df[df[metric]<=ub]
+    return df
 
 def filter_points(selected_datasets=None, ids=None):
     filtered = None
@@ -40,6 +75,8 @@ def filter_points(selected_datasets=None, ids=None):
     return filtered
 
 def get_metrics_for_points(ids):
+    if ids is None or not len(ids):
+        return None
     return metrics[metrics.id.isin(ids)]
 
 def update_filtered_points(prev_filtered, new_filtered):
