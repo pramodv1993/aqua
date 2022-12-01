@@ -1,13 +1,14 @@
 # AQuA
 A QUality Assistant utility for text corpora introspection and curation.
 
-Install dependencies
+Build the Docker image
 ```
-pip install -r requirements.txt
+docker build -t aqua .
 ```
 
-Run the command:
+Run the container:
 ```
-python3 app.py
+docker run -d -p80:8050 aqua
 ```
-and open `http://localhost:8050/` to see the tool.
+
+open `http://localhost` to see the tool.
